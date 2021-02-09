@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using AndreyPro.GoogleSheetsHelper;
 
 namespace TestConsole
 {
@@ -10,6 +6,12 @@ namespace TestConsole
     {
         static void Main(string[] args)
         {
+            var pathToJsonFile = @"D:\Data\Projects\client_secret.json";
+            var tableId = "1_T-ENPjpjhfEiVmoSNpYZDrhfEpiwCFNeuPyNNwL2uI";
+            var sheetName = "Test1";
+
+            var client = new GoogleSheetsClient(pathToJsonFile, tableId);
+            var list = client.Get(sheetName);
         }
     }
 }

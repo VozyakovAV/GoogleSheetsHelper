@@ -49,5 +49,11 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GoogleSheetsHelper\AndreyPro.GoogleSheetsHelper.csproj">
+      <Project>{5b28d12c-b157-4ba5-88ff-4bd6b2b6489d}</Project>
+      <Name>AndreyPro.GoogleSheetsHelper</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
