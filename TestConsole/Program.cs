@@ -1,4 +1,7 @@
 ﻿using AndreyPro.GoogleSheetsHelper;
+using System;
+using System.Diagnostics;
+using System.Threading;
 
 namespace TestConsole
 {
@@ -11,7 +14,13 @@ namespace TestConsole
             var sheetName = "Test1";
 
             var client = new GoogleSheetsClient(pathToJsonFile, tableId);
-            var list = client.Get(sheetName);
+            while (true)
+            {
+                var sw = Stopwatch.StartNew();
+                var list = client.Get(sheetName);
+                Console.WriteLine($"{DateTime.Now}, {sw.Elapsed}");
+                Thread.Sleep(1000);
+            }
         }
     }
 }
