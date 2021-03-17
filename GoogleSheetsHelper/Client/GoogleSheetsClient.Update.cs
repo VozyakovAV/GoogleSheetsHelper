@@ -2,6 +2,8 @@
 using Google.Apis.Sheets.v4.Data;
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace AndreyPro.GoogleSheetsHelper
 {
@@ -15,15 +17,17 @@ namespace AndreyPro.GoogleSheetsHelper
             var result = updateRequest.Execute();
         }
 
-        public void Update(IList<GoogleSheetUpdateRequest> data)
+        /// <summary>Записать в Google таблицу</summary>
+        public async Task Update(IList<GoogleSheetUpdateRequest> data, CancellationToken ct = default)
         {
-            var requests = new BatchUpdateSpreadsheetRequest { Requests = new List<Request>() };
+            var requestBody = new BatchUpdateSpreadsheetRequest { Requests = new List<Request>() };
             foreach (var req in data)
             {
                 var r = CreateUpdateRequest(req);
-                requests.Requests.Add(r);
+                requestBody.Requests.Add(r);
             }
-            _service.Value.Spreadsheets.BatchUpdate(requests, SpreadsheetId).Execute();
+            var request = _service.Value.Spreadsheets.BatchUpdate(requestBody, SpreadsheetId);
+            var response = await request.ExecuteAsync(ct).ConfigureAwait(false);
         }
 
         private Request CreateUpdateRequest(GoogleSheetUpdateRequest r)
@@ -48,7 +52,7 @@ namespace AndreyPro.GoogleSheetsHelper
             {
                 var listCellData = new List<CellData>();
 
-                foreach (var cell in row.Cells)
+                foreach (var cell in row)
                 {
                     var cellData = CreateCellData(cell);
                     listCellData.Add(cellData);

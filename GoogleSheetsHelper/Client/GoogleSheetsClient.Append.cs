@@ -47,7 +47,7 @@ namespace AndreyPro.GoogleSheetsHelper
             {
                 var listCellData = new List<CellData>();
 
-                foreach (var cell in row.Cells)
+                foreach (var cell in row)
                 {
                     var cellData = CreateCellData(cell);
                     listCellData.Add(cellData);
