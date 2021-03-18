@@ -6,6 +6,7 @@ using Google.Apis.Sheets.v4.Data;
 using System;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace AndreyPro.GoogleSheetsHelper
 {
@@ -47,12 +48,12 @@ namespace AndreyPro.GoogleSheetsHelper
 
         private void ResetSpreadsheet()
         {
-            _spreadsheet = new Lazy<Spreadsheet>(() => GetSpreadsheet());
+            _spreadsheet = new Lazy<Spreadsheet>(() => GetSpreadsheet().Result);
         }
 
-        private Spreadsheet GetSpreadsheet()
+        private async Task<Spreadsheet> GetSpreadsheet()
         {
-            return _service.Value.Spreadsheets.Get(SpreadsheetId).Execute();
+            return await _service.Value.Spreadsheets.Get(SpreadsheetId).ExecuteAsync().ConfigureAwait(false);
         }
 
         private int? GetSheetId(string sheetName)

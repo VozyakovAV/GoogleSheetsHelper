@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 
 namespace TestConsole
@@ -10,31 +11,53 @@ namespace TestConsole
     {
         private static string PathToJsonFile = @"D:\Data\Projects\client_secret.json";
         private static string TableId = "1_T-ENPjpjhfEiVmoSNpYZDrhfEpiwCFNeuPyNNwL2uI";
+        private static string SheetName = "My Sheet";
 
         static void Main(string[] args)
         {
             var sw = Stopwatch.StartNew();
 
-            //TestRead();
+            CreateSheet();
+            GetSheets();
             TestWrite();
+            TestRead();
+            //DeleteSheet();
 
             Console.WriteLine($"Elapsed: {sw.Elapsed}");
             Console.ReadKey();
         }
 
-        static void TestRead()
+        static void CreateSheet()
         {
             var client = new GoogleSheetsClient(PathToJsonFile, TableId);
-            var list = client.GetAsync("TestRead", new CancellationTokenSource(5000).Token).Result;
+            client.AddSheetIfNotExist(SheetName).Wait();
+        }
+
+        static void GetSheets()
+        {
+            var client = GetClient();
+            var sheets = client.GetSheets().Result;
+            sheets.ToList().ForEach(x => Console.WriteLine($"Sheet: {x}"));
+        }
+
+        static void DeleteSheet()
+        {
+            var client = GetClient();
+            client.DeleteSheet(SheetName).Wait();
+        }
+
+        static void TestRead()
+        {
+            var client = GetClient();
+            var list = client.GetAsync(SheetName).Result;
         }
 
         static void TestWrite()
         {
-            var sheetName = "TestWrite";
             var columnStart = 0;
             var rowStart = 0;
-            var request = new List<GoogleSheetUpdateRequest>();
-            var r = new GoogleSheetUpdateRequest(sheetName)
+            var requests = new List<GoogleSheetUpdateRequest>();
+            var request = new GoogleSheetUpdateRequest(SheetName)
             {
                 ColumnStart = columnStart,
                 RowStart = rowStart,
@@ -52,9 +75,14 @@ namespace TestConsole
                 }
             };
             
-            request.Add(r);
+            requests.Add(request);
             var client = new GoogleSheetsClient(PathToJsonFile, TableId);
-            client.Update(request).Wait();
+            client.Update(requests).Wait();
+        }
+
+        private static GoogleSheetsClient GetClient()
+        {
+            return new GoogleSheetsClient(PathToJsonFile, TableId);
         }
     }
 }
