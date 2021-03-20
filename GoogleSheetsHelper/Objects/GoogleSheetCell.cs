@@ -58,6 +58,8 @@ namespace AndreyPro.GoogleSheetsHelper
 
         public static GoogleSheetCell Create(object value)
         {
+            if (value == null) return null;
+
             switch (value)
             {
                 case string s: 

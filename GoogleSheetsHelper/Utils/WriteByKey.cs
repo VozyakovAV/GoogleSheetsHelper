@@ -29,7 +29,8 @@ namespace AndreyPro.GoogleSheetsHelper
                 if (row == null)
                     requestsAppend.Add(CreateAppendRequest(sheetName, columnKey, item.Key, columnStartWrite, item.Value));
                 else
-                    requestsUpdate.Add(CreateUpdateRequest(sheetName, columnStartWrite, row.Value, item.Value));
+                    //requestsUpdate.Add(CreateUpdateRequest(sheetName, columnStartWrite, row.Value, item.Value));
+                    requestsUpdate.AddRange(CreateUpdateRequests(sheetName, columnStartWrite, row.Value, item.Value));
             }
 
             if (requestsAppend.Count > 0)
@@ -74,9 +75,7 @@ namespace AndreyPro.GoogleSheetsHelper
         {
             var row = new GoogleSheetRow();
             foreach (var value in values)
-            {
                 row.Add(GoogleSheetCell.Create(value));
-            }
 
             var request = new GoogleSheetUpdateRequest(sheetName)
             {
@@ -85,6 +84,26 @@ namespace AndreyPro.GoogleSheetsHelper
                 Rows = { row },
             };
             return request;
+        }
+
+        private static IEnumerable<GoogleSheetUpdateRequest> CreateUpdateRequests(string sheetName, int columnStart, int rowStart, object[] values)
+        {
+            for (int i = 0; i < values.Length; i++)
+            {
+                var value = values[i];
+                if (value == null) continue;
+
+                var row = new GoogleSheetRow();
+                row.Add(GoogleSheetCell.Create(value));
+
+                var request = new GoogleSheetUpdateRequest(sheetName)
+                {
+                    ColumnStart = columnStart + i,
+                    RowStart = rowStart,
+                    Rows = { row },
+                };
+                yield return request;
+            }
         }
     }
 }

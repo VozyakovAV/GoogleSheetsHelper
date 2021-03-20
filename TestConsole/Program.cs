@@ -85,8 +85,8 @@ namespace TestConsole
         {
             var items = new Dictionary<string, object[]>
             {
-                { "Key1", new object[] { "Value1", 1, 1.1, DateTime.Now } },
-                { "Key2", new object[] { "Value2", 2, 2.2, DateTime.Now } },
+                { "Key1", new object[] { "Value1", 1, 1.1, null, DateTime.Now } },
+                { "Key2", new object[] { "Value2", 2, 2.2, null, DateTime.Now } },
             };
             var client = GetClient();
             GoogleUtils.WriteByKey(client, "WriteByKey", 0, 1, items).Wait();
