@@ -17,11 +17,12 @@ namespace TestConsole
         {
             var sw = Stopwatch.StartNew();
 
-            CreateSheet();
-            GetSheets();
-            TestWrite();
-            TestRead();
+            //CreateSheet();
+            //GetSheets();
+            //TestWrite();
+            //TestRead();
             //DeleteSheet();
+            TestWriteByKey();
 
             Console.WriteLine($"Elapsed: {sw.Elapsed}");
             Console.ReadKey();
@@ -29,7 +30,7 @@ namespace TestConsole
 
         static void CreateSheet()
         {
-            var client = new GoogleSheetsClient(PathToJsonFile, TableId);
+            var client = GetClient();
             client.AddSheetIfNotExist(SheetName).Wait();
         }
 
@@ -70,14 +71,25 @@ namespace TestConsole
                         new GoogleSheetCell(1.1),
                         new GoogleSheetCell(true),
                         new GoogleSheetCell(DateTime.Now),
-                        new GoogleSheetCell(DateTime.Now) { NumberPattern = "dd/mm/yy hh:mm:ss" }
+                        new GoogleSheetCell(DateTime.Now) { NumberFormat = "dd/mm/yy hh:mm:ss" }
                     }
                 }
             };
             
             requests.Add(request);
-            var client = new GoogleSheetsClient(PathToJsonFile, TableId);
+            var client = GetClient();
             client.Update(requests).Wait();
+        }
+
+        private static void TestWriteByKey()
+        {
+            var items = new List<WriteItem>
+            {
+                new WriteItem(0, Environment.MachineName + "_Key1", 1, new object[] { Environment.MachineName, "Value1", 1, 1.0, DateTime.Now }),
+                new WriteItem(0, Environment.MachineName + "_Key2", 1, new object[] { Environment.MachineName, "Value2", 2, 2.0, DateTime.Now }),
+            };
+            var client = GetClient();
+            GoogleUtils.WriteByKey(client, "WriteByKey", items).Wait();
         }
 
         private static GoogleSheetsClient GetClient()

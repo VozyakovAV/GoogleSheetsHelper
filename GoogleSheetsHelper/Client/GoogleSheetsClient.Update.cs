@@ -9,14 +9,6 @@ namespace AndreyPro.GoogleSheetsHelper
 {
     public partial class GoogleSheetsClient
     {
-        public void Update(string range, IList<IList<object>> values)
-        {
-            var valueRange = new ValueRange() { Values = values };
-            var updateRequest = _service.Value.Spreadsheets.Values.Update(valueRange, SpreadsheetId, range);
-            updateRequest.ValueInputOption = SpreadsheetsResource.ValuesResource.UpdateRequest.ValueInputOptionEnum.USERENTERED;
-            var result = updateRequest.Execute();
-        }
-
         /// <summary>Записать в Google таблицу</summary>
         public async Task Update(IList<GoogleSheetUpdateRequest> data, CancellationToken ct = default)
         {

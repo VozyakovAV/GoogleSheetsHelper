@@ -72,11 +72,12 @@ namespace AndreyPro.GoogleSheetsHelper
 
         private CellData CreateCellData(GoogleSheetCell cell)
         {
+            if (cell == null) return new CellData();
             var numberValue = cell.NumberValue;
-            var numberFormat = cell.NumberPattern == null ? null : new NumberFormat
+            var numberFormat = cell.NumberFormat == null ? null : new NumberFormat
             {
                 Type = "number",
-                Pattern = cell.NumberPattern,
+                Pattern = cell.NumberFormat,
             };
 
             if (cell.DateTimeValue.HasValue)
@@ -85,7 +86,7 @@ namespace AndreyPro.GoogleSheetsHelper
                 numberFormat = new NumberFormat
                 {
                     Type = "number",
-                    Pattern = cell.NumberPattern ?? "dd-mm-yyyy hh:mm:ss"
+                    Pattern = cell.DateTimeFormat ?? "yyyy-mm-dd hh:mm:ss"
                 };
             }
 

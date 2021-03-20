@@ -18,7 +18,10 @@ namespace AndreyPro.GoogleSheetsHelper
         public DateTime? DateTimeValue { get; set; }
 
         /// <summary>Формат числового значения</summary>
-        public string NumberPattern { get; set; }
+        public string NumberFormat { get; set; }
+
+        /// <summary>Формат даты и времени</summary>
+        public string DateTimeFormat { get; set; }
 
         /// <summary>Стиль ячейки: жирный</summary>
         public bool? Bold { get; set; }
@@ -51,6 +54,24 @@ namespace AndreyPro.GoogleSheetsHelper
         public GoogleSheetCell(DateTime? value)
         {
             DateTimeValue = value;
+        }
+
+        public static GoogleSheetCell Create(object value)
+        {
+            switch (value)
+            {
+                case string s: 
+                    return new GoogleSheetCell(s);
+                case int i:
+                    return new GoogleSheetCell(i);
+                case double d:
+                    return new GoogleSheetCell(d);
+                case bool b:
+                    return new GoogleSheetCell(b);
+                case DateTime dt:
+                    return new GoogleSheetCell(dt);
+            }
+            return new GoogleSheetCell(value.ToString());
         }
     }
 

@@ -2,28 +2,23 @@
 using Google.Apis.Sheets.v4.Data;
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace AndreyPro.GoogleSheetsHelper
 {
     public partial class GoogleSheetsClient
     {
-        public void Append(string range, IList<IList<object>> values)
+        public async Task Append(IList<GoogleSheetAppendRequest> data, CancellationToken ct = default)
         {
-            var valueRange = new ValueRange() { Values = values };
-            var updateRequest = _service.Value.Spreadsheets.Values.Append(valueRange, SpreadsheetId, range);
-            updateRequest.ValueInputOption = SpreadsheetsResource.ValuesResource.AppendRequest.ValueInputOptionEnum.USERENTERED;
-            var result = updateRequest.Execute();
-        }
-
-        public void Append(IList<GoogleSheetAppendRequest> data)
-        {
-            var requests = new BatchUpdateSpreadsheetRequest { Requests = new List<Request>() };
+            var requestsBody = new BatchUpdateSpreadsheetRequest { Requests = new List<Request>() };
             foreach (var req in data)
             {
                 var r = CreateAppendRequest(req);
-                requests.Requests.Add(r);
+                requestsBody.Requests.Add(r);
             }
-            _service.Value.Spreadsheets.BatchUpdate(requests, SpreadsheetId).Execute();
+            var request = _service.Value.Spreadsheets.BatchUpdate(requestsBody, SpreadsheetId);
+            var response = await request.ExecuteAsync(ct).ConfigureAwait(false);
         }
 
         private Request CreateAppendRequest(GoogleSheetAppendRequest r)
