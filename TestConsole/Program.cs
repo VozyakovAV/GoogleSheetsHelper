@@ -83,13 +83,13 @@ namespace TestConsole
 
         private static void TestWriteByKey()
         {
-            var items = new List<WriteItem>
+            var items = new Dictionary<string, object[]>
             {
-                new WriteItem(0, Environment.MachineName + "_Key1", 1, new object[] { Environment.MachineName, "Value1", 1, 1.0, DateTime.Now }),
-                new WriteItem(0, Environment.MachineName + "_Key2", 1, new object[] { Environment.MachineName, "Value2", 2, 2.0, DateTime.Now }),
+                { "Key1", new object[] { "Value1", 1, 1.1, DateTime.Now } },
+                { "Key2", new object[] { "Value2", 2, 2.2, DateTime.Now } },
             };
             var client = GetClient();
-            GoogleUtils.WriteByKey(client, "WriteByKey", items).Wait();
+            GoogleUtils.WriteByKey(client, "WriteByKey", 0, 1, items).Wait();
         }
 
         private static GoogleSheetsClient GetClient()

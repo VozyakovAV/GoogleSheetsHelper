@@ -6,7 +6,17 @@ namespace AndreyPro.GoogleSheetsHelper
 {
     public static class GoogleUtils
     {
-        public static async Task WriteByKey(GoogleSheetsClient client, string sheetName, IList<WriteItem> items)
+        /// <summary>
+        /// Вставить или обновить значения в гугл таблицу по ключу
+        /// </summary>
+        /// <param name="client">Клиент</param>
+        /// <param name="sheetName">Название листа</param>
+        /// <param name="columnKey">Номер колонки с ключом</param>
+        /// <param name="columnStartWrite">Начальный номер колонки для вставки значений</param>
+        /// <param name="items">Значения (ключ (строка), массив значений)</param>
+        /// <returns></returns>
+        public static async Task WriteByKey(GoogleSheetsClient client, string sheetName, int columnKey, int columnStartWrite, 
+            Dictionary<string, object[]> items)
         {
             await client.AddSheetIfNotExist(sheetName);
             var data = client.GetAsync(sheetName).Result;
@@ -15,11 +25,11 @@ namespace AndreyPro.GoogleSheetsHelper
             var requestsUpdate = new List<GoogleSheetUpdateRequest>();
             foreach (var item in items)
             {
-                var row = GetRow(data, item.KeyColumn, item.KeyValue);
+                var row = GetRow(data, columnKey, item.Key);
                 if (row == null)
-                    requestsAppend.Add(CreateAppendRequest(sheetName, item.KeyColumn, item.KeyValue, item.WriteColumn, item.WriteItems));
+                    requestsAppend.Add(CreateAppendRequest(sheetName, columnKey, item.Key, columnStartWrite, item.Value));
                 else
-                    requestsUpdate.Add(CreateUpdateRequest(sheetName, item.WriteColumn, row.Value, item.WriteItems));
+                    requestsUpdate.Add(CreateUpdateRequest(sheetName, columnStartWrite, row.Value, item.Value));
             }
 
             if (requestsAppend.Count > 0)
@@ -75,23 +85,6 @@ namespace AndreyPro.GoogleSheetsHelper
                 Rows = { row },
             };
             return request;
-        }
-    }
-
-    public class WriteItem
-    {
-        public int KeyColumn { get; set; }
-        public string KeyValue { get; set; }
-
-        public int WriteColumn { get; set; }
-        public object[] WriteItems { get; set; }
-
-        public WriteItem(int keyColumn, string keyValue, int writeColumn, object[] writeItems)
-        {
-            KeyColumn = keyColumn;
-            KeyValue = keyValue;
-            WriteColumn = writeColumn;
-            WriteItems = writeItems;
         }
     }
 }
