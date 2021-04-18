@@ -18,11 +18,11 @@ namespace TestConsole
             var sw = Stopwatch.StartNew();
 
             //CreateSheet();
-            //GetSheets();
+            GetSheets();
             //TestWrite();
             //TestRead();
             //DeleteSheet();
-            TestWriteByKey();
+            //TestWriteByKey();
 
             Console.WriteLine($"Elapsed: {sw.Elapsed}");
             Console.ReadKey();
