@@ -121,7 +121,12 @@
       <InputAssemblies Include="Google.Apis.Core.dll" />
       <InputAssemblies Include="Google.Apis.PlatformServices.dll" />
       <InputAssemblies Include="Google.Apis.Sheets.v4.dll" />
+      <InputAssemblies Include="Newtonsoft.Json.dll" />
     </ItemGroup>
-    <ILRepack OutputType="$(OutputType)" MainAssembly="$(AssemblyName).dll" OutputAssembly="$(AssemblyName).dll" InputAssemblies="@(InputAssemblies)" WorkingDirectory="$(WorkingDirectory)" />
+    <ILRepack OutputType="$(OutputType)"
+        MainAssembly="$(AssemblyName).dll" 
+        OutputAssembly="$(AssemblyName).Full.dll" 
+        InputAssemblies="@(InputAssemblies)"
+        WorkingDirectory="$(WorkingDirectory)" />
   </Target>
 </Project>
