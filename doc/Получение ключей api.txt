@@ -1,0 +1,3 @@
+https://developers.google.com/maps/documentation/android-sdk/get-api-key?hl=ru#creating-api-keys
+https://console.cloud.google.com/project/_/apiui/credential
+https://console.cloud.google.com/iam-admin/serviceaccounts

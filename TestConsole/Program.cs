@@ -4,12 +4,19 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace TestConsole
 {
     class Program
     {
-        private static string PathToJsonFile = @"D:\Data\Projects\client_secret.json";
+        private static string JsonClient0 = @"C:\MyApp\google_client.json";
+        private static string JsonClient1 = @"C:\MyApp\google_client1.json";
+        private static string JsonClient2 = @"C:\MyApp\google_client2.json";
+        private static string JsonClient3 = @"C:\MyApp\google_client3.json";
+        private static string JsonClient4 = @"C:\MyApp\google_client4.json";
+        private static string JsonClient5 = @"C:\MyApp\google_client5.json";
+
         private static string TableId = "1_T-ENPjpjhfEiVmoSNpYZDrhfEpiwCFNeuPyNNwL2uI";
         private static string SheetName = "My Sheet";
 
@@ -18,9 +25,10 @@ namespace TestConsole
             var sw = Stopwatch.StartNew();
 
             //CreateSheet();
-            GetSheets();
+            //GetSheets();
             //TestWrite();
             //TestRead();
+            TestStressRead();
             //DeleteSheet();
             //TestWriteByKey();
 
@@ -51,6 +59,43 @@ namespace TestConsole
         {
             var client = GetClient();
             var list = client.GetAsync(SheetName).Result;
+        }
+
+        static void TestStressRead()
+        {
+            int num = 0;
+            void Run(string json)
+            {
+                try
+                {
+                    for (int i = 0; i < 10000; i++)
+                    {
+                        var client = GetClient(json);
+                        var list = client.GetAsync(SheetName).Result;
+                        var n = Interlocked.Increment(ref num);
+                        Console.WriteLine($"{n}, {i}: {json}");
+                        Thread.Sleep(1000);
+                    }
+                }
+                catch (AggregateException ex)
+                {
+                    var m = ex.InnerException.ToString();
+                    Console.WriteLine($"{m.Substring(0, Math.Min(m.Length, 50))}: {json}");
+                }
+                catch (Exception ex)
+                {
+                    var m = ex.ToString();
+                    Console.WriteLine($"{m.Substring(0, Math.Min(m.Length, 50))}: {json}");
+                }
+            }
+
+            Task.Run(() => Run(JsonClient1));
+            Task.Run(() => Run(JsonClient2));
+            Task.Run(() => Run(JsonClient3));
+            Task.Run(() => Run(JsonClient4));
+            Task.Run(() => Run(JsonClient5));
+
+            Console.ReadKey();
         }
 
         static void TestWrite()
@@ -92,9 +137,9 @@ namespace TestConsole
             GoogleUtils.WriteByKey(client, "WriteByKey", 0, 1, items).Wait();
         }
 
-        private static GoogleSheetsClient GetClient()
+        private static GoogleSheetsClient GetClient(string json = null)
         {
-            return new GoogleSheetsClient(PathToJsonFile, TableId);
+            return new GoogleSheetsClient(json ?? JsonClient0, TableId);
         }
     }
 }
