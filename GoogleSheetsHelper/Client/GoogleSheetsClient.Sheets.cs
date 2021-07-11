@@ -18,12 +18,12 @@ namespace AndreyPro.GoogleSheetsHelper
         }
 
         /// <summary>Создать лист если нету</summary>
-        public async Task<bool> AddSheetIfNotExist(string title, int? columnCount = null, int? rowCount = null)
+        public async Task<bool> AddSheetIfNotExist(string title, int? columnCount = null, int? rowCount = null, CancellationToken ct = default)
         {
-            var sheets = await GetSheets();
+            var sheets = await GetSheets(ct);
             if (!sheets.Any(x => string.Equals(x, title, StringComparison.OrdinalIgnoreCase)))
             {
-                await AddSheet(title, columnCount, rowCount);
+                await AddSheet(title, columnCount, rowCount, ct);
                 return true;
             }
             return false;

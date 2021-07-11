@@ -2,14 +2,15 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Timers;
-using System.Linq;
 using Timer = System.Timers.Timer;
 
 namespace AndreyPro.GoogleSheetsHelper
 {
     public static class GoogleUtils
     {
+        private static IDictionary<PlanWriteByKey, Dictionary<string, object[]>> _plansByTimer
+            = new Dictionary<PlanWriteByKey, Dictionary<string, object[]>>();
+
         /// <summary>
         /// Вставить или обновить значения в гугл таблицу по ключу
         /// </summary>
@@ -18,13 +19,11 @@ namespace AndreyPro.GoogleSheetsHelper
         /// <param name="columnKey">Номер колонки с ключом</param>
         /// <param name="columnStartWrite">Начальный номер колонки для вставки значений</param>
         /// <param name="items">Значения (ключ (строка), массив значений)</param>
-        /// <returns></returns>
         public static async Task WriteByKey(GoogleSheetsClient client, string sheetName, int columnKey, int columnStartWrite, 
-            Dictionary<string, object[]> items)
+            Dictionary<string, object[]> items, CancellationToken ct = default)
         {
-            await client.AddSheetIfNotExist(sheetName);
-            var data = client.GetAsync(sheetName).Result;
-
+            var data = await client.GetOrAddSheet(sheetName, ct);
+            
             var requestsAppend = new List<GoogleSheetAppendRequest>();
             var requestsUpdate = new List<GoogleSheetUpdateRequest>();
             foreach (var item in items)
@@ -33,79 +32,61 @@ namespace AndreyPro.GoogleSheetsHelper
                 if (row == null)
                     requestsAppend.Add(CreateAppendRequest(sheetName, columnKey, item.Key, columnStartWrite, item.Value));
                 else
-                    //requestsUpdate.Add(CreateUpdateRequest(sheetName, columnStartWrite, row.Value, item.Value));
                     requestsUpdate.AddRange(CreateUpdateRequests(sheetName, columnStartWrite, row.Value, item.Value));
             }
 
             if (requestsAppend.Count > 0)
-                await client.Append(requestsAppend);
+                await client.Append(requestsAppend, ct);
             if (requestsUpdate.Count > 0)
-                await client.Update(requestsUpdate);
+                await client.Update(requestsUpdate, ct);
         }
 
-        private static IDictionary<PlanWriteByKey, Dictionary<string, object[]>> _plansByTimer = new Dictionary<PlanWriteByKey, Dictionary<string, object[]>>();
-
+        /// <summary>
+        /// Вставить или обновить значения в гугл таблицу по ключу. Вызов произойдет через указанное время.
+        /// Используется если пишут в одну таблицу несколько источников.
+        /// </summary>
+        /// <param name="client">Клиент</param>
+        /// <param name="sheetName">Название листа</param>
+        /// <param name="columnKey">Номер колонки с ключом</param>
+        /// <param name="columnStartWrite">Начальный номер колонки для вставки значений</param>
+        /// <param name="items">Значения (ключ (строка), массив значений)</param>
         public static void WriteByKeyWithTimer(GoogleSheetsClient client, string sheetName, int columnKey, int columnStartWrite, 
-            Dictionary<string, object[]> items, int intervalTimerMs, CancellationToken ct = default)
+            Dictionary<string, object[]> items, int delayMs, Action<Exception> error = null, CancellationToken ct = default)
         {
             lock (_plansByTimer)
             {
                 var plan = new PlanWriteByKey(client, sheetName, columnKey, columnStartWrite);
-                if (_plansByTimer.TryGetValue(plan, out var p1))
+                if (_plansByTimer.TryGetValue(plan, out var planItems))
                 {
                     foreach (var item in items)
-                        p1[item.Key] = item.Value;
+                        planItems[item.Key] = item.Value;
                 }
                 else
                 {
                     _plansByTimer.Add(plan, items);
 
-                    var timer = new Timer(intervalTimerMs);
+                    var timer = new Timer(delayMs);
                     timer.AutoReset = false;
                     timer.Elapsed += (s, e) =>
                     {
-                        lock (_plansByTimer)
+                        try
                         {
-                            if (_plansByTimer.TryGetValue(plan, out var itemAll))
+                            lock (_plansByTimer)
                             {
-                                WriteByKey(client, sheetName, columnKey, columnStartWrite, itemAll).Wait(ct);
-                                _plansByTimer.Remove(plan);
+                                if (_plansByTimer.TryGetValue(plan, out var itemAll))
+                                {
+                                    WriteByKey(client, sheetName, columnKey, columnStartWrite, itemAll, ct).Wait();
+                                    _plansByTimer.Remove(plan);
+                                }
                             }
+                        }
+                        catch (Exception ex)
+                        {
+                            error?.Invoke(ex.GetBaseException());
                         }
                     };
                     timer.Start();
                 }
-            }
-        }
-
-        private static void T_Elapsed(object sender, ElapsedEventArgs e)
-        {
-            throw new NotImplementedException();
-        }
-
-        public class PlanWriteByKey
-        {
-            public GoogleSheetsClient Client { get; }
-            public string SheetName { get; }
-            public int ColumnKey { get; }
-            public int ColumnStartWrite { get; }
-            
-            private int _hash;
-
-            public PlanWriteByKey(GoogleSheetsClient client, string sheetName, int columnKey, int columnStartWrite)
-            {
-                Client = client;
-                SheetName = sheetName;
-                ColumnKey = columnKey;
-                ColumnStartWrite = columnStartWrite;
-                _hash = new { Client, SheetName, ColumnKey, ColumnStartWrite }.GetHashCode();
-            }
-
-            public override int GetHashCode() => _hash;
-
-            public override bool Equals(object obj)
-            {
-                return _hash == obj?.GetHashCode();
             }
         }
 
@@ -141,21 +122,6 @@ namespace AndreyPro.GoogleSheetsHelper
             return request;
         }
 
-        private static GoogleSheetUpdateRequest CreateUpdateRequest(string sheetName, int columnStart, int rowStart, object[] values)
-        {
-            var row = new GoogleSheetRow();
-            foreach (var value in values)
-                row.Add(GoogleSheetCell.Create(value));
-
-            var request = new GoogleSheetUpdateRequest(sheetName)
-            {
-                ColumnStart = columnStart,
-                RowStart = rowStart,
-                Rows = { row },
-            };
-            return request;
-        }
-
         private static IEnumerable<GoogleSheetUpdateRequest> CreateUpdateRequests(string sheetName, int columnStart, int rowStart, object[] values)
         {
             for (int i = 0; i < values.Length; i++)
@@ -173,6 +139,32 @@ namespace AndreyPro.GoogleSheetsHelper
                     Rows = { row },
                 };
                 yield return request;
+            }
+        }
+
+        private class PlanWriteByKey
+        {
+            public GoogleSheetsClient Client { get; }
+            public string SheetName { get; }
+            public int ColumnKey { get; }
+            public int ColumnStartWrite { get; }
+
+            private int _hash;
+
+            public PlanWriteByKey(GoogleSheetsClient client, string sheetName, int columnKey, int columnStartWrite)
+            {
+                Client = client;
+                SheetName = sheetName;
+                ColumnKey = columnKey;
+                ColumnStartWrite = columnStartWrite;
+                _hash = new { Client.SpreadsheetId, SheetName, ColumnKey, ColumnStartWrite }.GetHashCode();
+            }
+
+            public override int GetHashCode() => _hash;
+
+            public override bool Equals(object obj)
+            {
+                return _hash == obj?.GetHashCode();
             }
         }
     }
