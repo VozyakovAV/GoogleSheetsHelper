@@ -28,9 +28,10 @@ namespace TestConsole
             //GetSheets();
             //TestWrite();
             //TestRead();
-            TestStressRead();
+            //TestStressRead();
             //DeleteSheet();
             //TestWriteByKey();
+            TestWriteByKeyTimer();
 
             Console.WriteLine($"Elapsed: {sw.Elapsed}");
             Console.ReadKey();
@@ -135,6 +136,35 @@ namespace TestConsole
             };
             var client = GetClient();
             GoogleUtils.WriteByKey(client, "WriteByKey", 0, 1, items).Wait();
+        }
+
+        private static void TestWriteByKeyTimer()
+        {
+            var client = GetClient();
+            var items1 = new Dictionary<string, object[]>
+            {
+                { "Key1", new object[] { "Value1", 1, 1.1, null, DateTime.Now } },
+                { "Key2", new object[] { "Value2", 2, 2.2, null, DateTime.Now } },
+            };
+
+            GoogleUtils.WriteByKeyWithTimer(client, "WriteByKey", 0, 1, items1, 5000);
+            Thread.Sleep(1000);
+
+            var items2 = new Dictionary<string, object[]>
+            {
+                { "Key2", new object[] { "Value22", 2, 2.2, null, DateTime.Now } },
+                { "Key3", new object[] { "Value3", 3, 3.2, null, DateTime.Now } },
+            };
+            GoogleUtils.WriteByKeyWithTimer(client, "WriteByKey", 0, 1, items2, 5000);
+            Thread.Sleep(6000);
+
+            var items3 = new Dictionary<string, object[]>
+            {
+                { "Key2", new object[] { "Value222", 2, 2.2, null, DateTime.Now } },
+                { "Key4", new object[] { "Value4", 4, 4.2, null, DateTime.Now } },
+            };
+            GoogleUtils.WriteByKeyWithTimer(client, "WriteByKey", 0, 1, items3, 5000);
+            Console.WriteLine("end");
         }
 
         private static GoogleSheetsClient GetClient(string json = null)

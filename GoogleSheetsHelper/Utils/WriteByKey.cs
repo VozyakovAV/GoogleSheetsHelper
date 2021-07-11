@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Timers;
+using System.Linq;
+using Timer = System.Timers.Timer;
 
 namespace AndreyPro.GoogleSheetsHelper
 {
@@ -37,6 +41,72 @@ namespace AndreyPro.GoogleSheetsHelper
                 await client.Append(requestsAppend);
             if (requestsUpdate.Count > 0)
                 await client.Update(requestsUpdate);
+        }
+
+        private static IDictionary<PlanWriteByKey, Dictionary<string, object[]>> _plansByTimer = new Dictionary<PlanWriteByKey, Dictionary<string, object[]>>();
+
+        public static void WriteByKeyWithTimer(GoogleSheetsClient client, string sheetName, int columnKey, int columnStartWrite, 
+            Dictionary<string, object[]> items, int intervalTimerMs, CancellationToken ct = default)
+        {
+            lock (_plansByTimer)
+            {
+                var plan = new PlanWriteByKey(client, sheetName, columnKey, columnStartWrite);
+                if (_plansByTimer.TryGetValue(plan, out var p1))
+                {
+                    foreach (var item in items)
+                        p1[item.Key] = item.Value;
+                }
+                else
+                {
+                    _plansByTimer.Add(plan, items);
+
+                    var timer = new Timer(intervalTimerMs);
+                    timer.AutoReset = false;
+                    timer.Elapsed += (s, e) =>
+                    {
+                        lock (_plansByTimer)
+                        {
+                            if (_plansByTimer.TryGetValue(plan, out var itemAll))
+                            {
+                                WriteByKey(client, sheetName, columnKey, columnStartWrite, itemAll).Wait(ct);
+                                _plansByTimer.Remove(plan);
+                            }
+                        }
+                    };
+                    timer.Start();
+                }
+            }
+        }
+
+        private static void T_Elapsed(object sender, ElapsedEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+        public class PlanWriteByKey
+        {
+            public GoogleSheetsClient Client { get; }
+            public string SheetName { get; }
+            public int ColumnKey { get; }
+            public int ColumnStartWrite { get; }
+            
+            private int _hash;
+
+            public PlanWriteByKey(GoogleSheetsClient client, string sheetName, int columnKey, int columnStartWrite)
+            {
+                Client = client;
+                SheetName = sheetName;
+                ColumnKey = columnKey;
+                ColumnStartWrite = columnStartWrite;
+                _hash = new { Client, SheetName, ColumnKey, ColumnStartWrite }.GetHashCode();
+            }
+
+            public override int GetHashCode() => _hash;
+
+            public override bool Equals(object obj)
+            {
+                return _hash == obj?.GetHashCode();
+            }
         }
 
         private static int? GetRow(IList<IList<object>> list, int column, string value)
