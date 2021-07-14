@@ -51,7 +51,7 @@ namespace AndreyPro.GoogleSheetsHelper
         /// <param name="columnStartWrite">Начальный номер колонки для вставки значений</param>
         /// <param name="items">Значения (ключ (строка), массив значений)</param>
         public static void WriteByKeyWithTimer(GoogleSheetsClient client, string sheetName, int columnKey, int columnStartWrite, 
-            Dictionary<string, object[]> items, int delayMs, Action<Exception> error = null, CancellationToken ct = default)
+            Dictionary<string, object[]> items, int delayMs = 5000, Action<Exception> error = null, CancellationToken ct = default)
         {
             lock (_plansByTimer)
             {
