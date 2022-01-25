@@ -25,9 +25,9 @@ namespace TestConsole
             var sw = Stopwatch.StartNew();
 
             //CreateSheet();
-            GetSheets();
+            //GetSheets();
             //TestWrite();
-            //TestRead();
+            TestRead();
             //TestStressRead();
             //DeleteSheet();
             //TestWriteByKey();
@@ -60,6 +60,12 @@ namespace TestConsole
         {
             var client = GetClient();
             var list = client.Get(SheetName).Result;
+            foreach (var line in list)
+            {
+                foreach (var value in line)
+                    Console.Write(value + "\t");
+                Console.WriteLine();
+            }
         }
 
         static void TestStressRead()
