@@ -1,6 +1,6 @@
 @echo off
 set sln="GoogleSheetsHelper\GoogleSheetsHelper.csproj"
-set ilmerge="Libs\ilrepack.exe"
+set libMerge="Libs\ilrepack.exe"
 set pathBase="bin"
 set pathBuild="build"
 set fileDll="GoogleSheetsHelperFull.dll"
@@ -21,12 +21,6 @@ rem мержим библиотеки в одну
 set p=%pathBase%\\%pathBuild%
 set d1=%p%\GoogleSheetsHelper.dll %p%\Newtonsoft.Json.dll
 set d2=%p%\Google.Apis.Core.dll %p%\Google.Apis.dll %p%\Google.Apis.Auth.dll %p%\Google.Apis.Auth.PlatformServices.dll %p%\Google.Apis.Sheets.v4.dll
-%ilmerge% /out:"%pathBase%\\%fileDll%" %d1% %d2%
-
-rem xcopy "%pathBase%\%pathBuild%\TSLabCommon.dll" "%pathBase%" /Y
-rem xcopy "%pathBase%\%pathBuild%\TSLabExtra.dll" "%pathBase%" /Y
-
-rem echo F|xcopy /S /I /Q /Y /F "%pathBase%\%pathBuild%\TSLabCommon.dll" "%pathBase%\TSLabCommon.dll"
-rem echo F|xcopy /S /I /Q /Y /F "%pathBase%\%pathBuild%\TSLabExtra.dll" "%pathBase%\TSLabExtra.dll"
+%libMerge% /out:"%pathBase%\\%fileDll%" %d1% %d2%
 
 pause
