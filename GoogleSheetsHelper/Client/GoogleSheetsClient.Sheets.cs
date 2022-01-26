@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace AndreyPro.GoogleSheetsHelper
+namespace GoogleSheetsHelper
 {
     public partial class GoogleSheetsClient
     {

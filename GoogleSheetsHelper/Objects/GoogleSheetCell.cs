@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Drawing;
 
-namespace AndreyPro.GoogleSheetsHelper
+namespace GoogleSheetsHelper
 {
     public class GoogleSheetCell
     {

@@ -1,4 +1,4 @@
-﻿using AndreyPro.GoogleSheetsHelper;
+﻿using GoogleSheetsHelper;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

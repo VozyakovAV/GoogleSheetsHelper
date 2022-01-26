@@ -4,7 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Timer = System.Timers.Timer;
 
-namespace AndreyPro.GoogleSheetsHelper
+namespace GoogleSheetsHelper
 {
     public static class GoogleUtils
     {

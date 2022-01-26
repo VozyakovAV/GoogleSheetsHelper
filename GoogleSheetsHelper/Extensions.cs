@@ -1,6 +1,6 @@
 ﻿using Google.Apis.Sheets.v4.Data;
 
-namespace AndreyPro.GoogleSheetsHelper
+namespace GoogleSheetsHelper
 {
     public static class Extensions
     {
