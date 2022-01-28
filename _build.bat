@@ -19,9 +19,10 @@ echo === Build project ===
 
 echo === Merge libs ===
 set p=%pathBase%\\%pathBuild%
-set d1=%p%\GoogleSheetsHelper.dll %p%\Newtonsoft.Json.dll
-set d2=%p%\Google.Apis.Core.dll %p%\Google.Apis.dll %p%\Google.Apis.Auth.dll %p%\Google.Apis.Auth.PlatformServices.dll %p%\Google.Apis.Sheets.v4.dll
-%libMerge% /out:"%pathBase%\\%fileDll%" %d1% %d2%
+set d1=%p%\GoogleSheetsHelper.dll
+set d2=%p%\Newtonsoft.Json.dll
+set d3=%p%\Google.Apis.Core.dll %p%\Google.Apis.dll %p%\Google.Apis.Auth.dll %p%\Google.Apis.Auth.PlatformServices.dll %p%\Google.Apis.Sheets.v4.dll
+%libMerge% /lib:"%pathBase%\\%pathBuild%" /out:"%pathBase%\\%fileDll%" %d1% %d2% %d3%
 
 echo The end
 pause
