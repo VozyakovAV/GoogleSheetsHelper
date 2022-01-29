@@ -30,8 +30,9 @@ namespace TestConsole
             //TestRead();
             //TestStressRead();
             //DeleteSheet();
-            TestWriteByKey();
+            //TestWriteByKey();
             //TestWriteByKeyTimer();
+            TestUpdater();
 
             Console.WriteLine($"Elapsed: {sw.Elapsed}");
             Console.ReadKey();
@@ -142,6 +143,20 @@ namespace TestConsole
             };
             var client = GetClient();
             GoogleUtils.WriteByKey(client, "WriteByKey", 0, 1, items).Wait();
+        }
+
+        private static void TestUpdater()
+        {
+            var ct = new CancellationTokenSource();
+            ct.Cancel();
+            var client = GetClient();
+            var updater = new SheetUpdater(client, "Updater", 0, 1);
+
+            updater.Add("Key1", 1, DateTime.Now);
+            updater.Add("Key2", 2, DateTime.Now);
+
+            updater.Send(false, ct.Token).Wait();
+            updater.Send(false).Wait();
         }
 
         private static void TestWriteByKeyTimer()

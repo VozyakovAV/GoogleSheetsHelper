@@ -22,6 +22,9 @@ namespace GoogleSheetsHelper
         public static async Task WriteByKey(GoogleSheetsClient client, string sheetName, int columnKey, int columnStartWrite, 
             Dictionary<string, object[]> items, CancellationToken ct = default)
         {
+            if (items == null || items.Count == 0)
+                return;
+
             var data = await client.GetOrAddSheet(sheetName, ct).ConfigureAwait(false);
             var requestsAppend = new List<GoogleSheetAppendRequest>();
             var requestsUpdate = new List<GoogleSheetUpdateRequest>();
@@ -50,6 +53,7 @@ namespace GoogleSheetsHelper
         /// <param name="columnKey">Номер колонки с ключом</param>
         /// <param name="columnStartWrite">Начальный номер колонки для вставки значений</param>
         /// <param name="items">Значения (ключ (строка), массив значений)</param>
+        [Obsolete]
         public static void WriteByKeyWithTimer(GoogleSheetsClient client, string sheetName, int columnKey, int columnStartWrite, 
             Dictionary<string, object[]> items, int delayMs = 5000, Action<Exception> error = null, CancellationToken ct = default)
         {
