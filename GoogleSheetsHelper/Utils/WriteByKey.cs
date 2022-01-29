@@ -22,13 +22,13 @@ namespace GoogleSheetsHelper
         public static async Task WriteByKey(GoogleSheetsClient client, string sheetName, int columnKey, int columnStartWrite, 
             Dictionary<string, object[]> items, CancellationToken ct = default)
         {
-            var data = await client.GetOrAddSheet(sheetName, ct);
-            
+            var data = await client.GetOrAddSheet(sheetName, ct).ConfigureAwait(false);
             var requestsAppend = new List<GoogleSheetAppendRequest>();
             var requestsUpdate = new List<GoogleSheetUpdateRequest>();
+
             foreach (var item in items)
             {
-                var row = GetRow(data, columnKey, item.Key);
+                var row = GetRowByValue(data, columnKey, item.Key);
                 if (row == null)
                     requestsAppend.Add(CreateAppendRequest(sheetName, columnKey, item.Key, columnStartWrite, item.Value));
                 else
@@ -36,9 +36,9 @@ namespace GoogleSheetsHelper
             }
 
             if (requestsAppend.Count > 0)
-                await client.Append(requestsAppend, ct);
+                await client.Append(requestsAppend, ct).ConfigureAwait(false);
             if (requestsUpdate.Count > 0)
-                await client.Update(requestsUpdate, ct);
+                await client.Update(requestsUpdate, ct).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -90,19 +90,22 @@ namespace GoogleSheetsHelper
             }
         }
 
-        private static int? GetRow(IList<IList<object>> list, int column, string value)
+        private static int? GetRowByValue(IList<IList<object>> list, int column, string value)
         {
             if (list == null) return null;
+
             for (int i = 0; i < list.Count; i++)
             {
                 var items = list[i];
                 if (items.Count > column && items[column]?.ToString() == value)
                     return i;
             }
+
             return null;
         }
 
-        private static GoogleSheetAppendRequest CreateAppendRequest(string sheetName, int keyColumn, string keyValue, int columnStart, object[] values)
+        private static GoogleSheetAppendRequest CreateAppendRequest(string sheetName, int keyColumn, string keyValue, int columnStart, 
+            object[] values)
         {
             var row = new GoogleSheetRow();
             var n = Math.Max(keyColumn, columnStart + values.Length);

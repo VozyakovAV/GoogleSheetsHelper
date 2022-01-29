@@ -20,10 +20,10 @@ namespace GoogleSheetsHelper
         /// <summary>Создать лист если нету</summary>
         public async Task<bool> AddSheetIfNotExist(string title, int? columnCount = null, int? rowCount = null, CancellationToken ct = default)
         {
-            var sheets = await GetSheets(ct);
+            var sheets = await GetSheets(ct).ConfigureAwait(false);
             if (!sheets.Any(x => string.Equals(x, title, StringComparison.OrdinalIgnoreCase)))
             {
-                await AddSheet(title, columnCount, rowCount, ct);
+                await AddSheet(title, columnCount, rowCount, ct).ConfigureAwait(false);
                 return true;
             }
             return false;

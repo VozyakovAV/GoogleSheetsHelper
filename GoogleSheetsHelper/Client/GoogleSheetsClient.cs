@@ -104,7 +104,7 @@ namespace GoogleSheetsHelper
                 if (userEnteredFormat == null)
                     userEnteredFormat = new CellFormat();
                 userEnteredFormat.NumberFormat = numberFormat;
-            };
+            }
 
             if (cell.Bold.HasValue)
             {

@@ -27,10 +27,10 @@ namespace TestConsole
             //CreateSheet();
             //GetSheets();
             //TestWrite();
-            TestRead();
+            //TestRead();
             //TestStressRead();
             //DeleteSheet();
-            //TestWriteByKey();
+            TestWriteByKey();
             //TestWriteByKeyTimer();
 
             Console.WriteLine($"Elapsed: {sw.Elapsed}");
@@ -123,7 +123,7 @@ namespace TestConsole
                         new GoogleSheetCell(1.1),
                         new GoogleSheetCell(true),
                         new GoogleSheetCell(DateTime.Now),
-                        new GoogleSheetCell(DateTime.Now) { NumberFormat = "dd/mm/yy hh:mm:ss" }
+                        new GoogleSheetCell(DateTime.Now) { DateTimeFormat = "dd/mm/yy hh:mm:ss" }
                     }
                 }
             };

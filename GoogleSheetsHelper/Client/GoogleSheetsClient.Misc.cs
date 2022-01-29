@@ -35,8 +35,8 @@ namespace GoogleSheetsHelper
             {
                 if (ex.Message.Contains("Unable to parse range")) // не найдена таблица
                 {
-                    await AddSheet(range, ct: ct);
-                    return await Get(range, ct);
+                    await AddSheet(range, ct: ct).ConfigureAwait(false);
+                    return await Get(range, ct).ConfigureAwait(false);
                 }
                 else
                 {
