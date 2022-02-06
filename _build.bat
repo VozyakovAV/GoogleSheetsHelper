@@ -15,7 +15,8 @@ echo === Delete folder %pathBase% ===
 rmdir /S /Q %pathBase%
 
 echo === Build project ===
-%msbuild% %sln% /t:Rebuild /p:Configuration=Debug /p:OutputPath="..\\%pathBase%\\%pathBuild%"
+rem %msbuild% %sln% /t:Rebuild /p:Configuration=Debug /p:OutputPath="..\\%pathBase%\\%pathBuild%"
+%msbuild% %sln% /t:Pack /p:Configuration=Debug /p:OutputPath="..\\%pathBase%\\%pathBuild%"
 
 echo === Merge libs ===
 set p=%pathBase%\\%pathBuild%

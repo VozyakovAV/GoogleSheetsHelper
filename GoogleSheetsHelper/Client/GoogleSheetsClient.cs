@@ -12,6 +12,7 @@ namespace GoogleSheetsHelper
 {
     public partial class GoogleSheetsClient
     {
+        public static string DateTimeFormatDefault = "yyyy-mm-dd hh:mm:ss";
         private static readonly string ApplicationName = "GoogleSheetsHelper";
 
         public string FileClientJson { get; private set; }
@@ -86,7 +87,7 @@ namespace GoogleSheetsHelper
                 numberFormat = new NumberFormat
                 {
                     Type = "number",
-                    Pattern = cell.DateTimeFormat ?? "yyyy-mm-dd hh:mm:ss"
+                    Pattern = cell.DateTimeFormat ?? DateTimeFormatDefault
                 };
             }
 

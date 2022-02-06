@@ -26,13 +26,13 @@ namespace TestConsole
 
             //CreateSheet();
             //GetSheets();
-            //TestWrite();
+            TestWrite();
             //TestRead();
             //TestStressRead();
             //DeleteSheet();
             //TestWriteByKey();
             //TestWriteByKeyTimer();
-            TestUpdater();
+            //TestUpdater();
 
             Console.WriteLine($"Elapsed: {sw.Elapsed}");
             Console.ReadKey();
@@ -124,7 +124,7 @@ namespace TestConsole
                         new GoogleSheetCell(1.1),
                         new GoogleSheetCell(true),
                         new GoogleSheetCell(DateTime.Now),
-                        new GoogleSheetCell(DateTime.Now) { DateTimeFormat = "dd/mm/yy hh:mm:ss" }
+                        new GoogleSheetCell(DateTime.Now) { DateTimeFormat = "dd-mm-yyyy" }
                     }
                 }
             };
@@ -138,8 +138,8 @@ namespace TestConsole
         {
             var items = new Dictionary<string, object[]>
             {
-                { "Key1", new object[] { "Value1", 1, 1.1, null, DateTime.Now } },
-                { "Key2", new object[] { "Value2", 2, 2.2, null, DateTime.Now } },
+                { "Key1", new object[] { "Value1", 1, 1.1, (decimal)2.1, null, DateTime.Now } },
+                { "Key2", new object[] { "Value2", 2, 2.2, (decimal)2.2, null, DateTime.Now } },
             };
             var client = GetClient();
             GoogleUtils.WriteByKey(client, "WriteByKey", 0, 1, items).Wait();

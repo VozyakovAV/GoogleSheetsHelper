@@ -62,16 +62,24 @@ namespace GoogleSheetsHelper
 
             switch (value)
             {
-                case string s: 
-                    return new GoogleSheetCell(s);
-                case int i:
-                    return new GoogleSheetCell(i);
-                case double d:
-                    return new GoogleSheetCell(d);
-                case bool b:
-                    return new GoogleSheetCell(b);
-                case DateTime dt:
-                    return new GoogleSheetCell(dt);
+                case string t: 
+                    return new GoogleSheetCell(t);
+                case byte t:
+                    return new GoogleSheetCell(t);
+                case short t:
+                    return new GoogleSheetCell(t);
+                case int t:
+                    return new GoogleSheetCell(t);
+                case long t:
+                    return new GoogleSheetCell(t);
+                case double t:
+                    return new GoogleSheetCell(t);
+                case decimal t:
+                    return new GoogleSheetCell((double)t);
+                case bool t:
+                    return new GoogleSheetCell(t);
+                case DateTime t:
+                    return new GoogleSheetCell(t);
             }
             return new GoogleSheetCell(value.ToString());
         }
