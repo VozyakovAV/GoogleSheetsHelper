@@ -26,12 +26,11 @@ namespace TestConsole
 
             //CreateSheet();
             //GetSheets();
-            TestWrite();
+            //TestWrite();
             //TestRead();
             //TestStressRead();
             //DeleteSheet();
-            //TestWriteByKey();
-            //TestWriteByKeyTimer();
+            TestWriteByKey();
             //TestUpdater();
 
             Console.WriteLine($"Elapsed: {sw.Elapsed}");
@@ -136,13 +135,14 @@ namespace TestConsole
 
         private static void TestWriteByKey()
         {
+            var titles = new[] { "Заголовок1", "Заголовок2", "Заголовок3", "Заголовок4", null, "Время обновления" };
             var items = new Dictionary<string, object[]>
             {
                 { "Key1", new object[] { "Value1", 1, 1.1, (decimal)2.1, null, DateTime.Now } },
                 { "Key2", new object[] { "Value2", 2, 2.2, (decimal)2.2, null, DateTime.Now } },
             };
             var client = GetClient();
-            GoogleUtils.WriteByKey(client, "WriteByKey", 0, 1, items).Wait();
+            GoogleUtils.WriteByKey(client, "WriteByKey", 0, 1, items, titles).Wait();
         }
 
         private static void TestUpdater()
@@ -150,52 +150,13 @@ namespace TestConsole
             var ct = new CancellationTokenSource();
             ct.Cancel();
             var client = GetClient();
-            var updater = new SheetUpdater(client, "Updater", 0, 1);
+            var updater = new GoogleSheetUpdater(client, "Updater", 0, 1);
 
             updater.Add("Key1", 1, DateTime.Now);
             updater.Add("Key2", 2, DateTime.Now);
 
             updater.Send(false, ct.Token).Wait();
             updater.Send(false).Wait();
-        }
-
-        private static void TestWriteByKeyTimer()
-        {
-            var client = GetClient();
-            var sheetName = "WriteByKey";
-
-            if (client.GetSheets().Result.Contains(sheetName))
-                client.Clear(sheetName).Wait();
-            
-            void Error(Exception ex)
-            {
-                Console.WriteLine(ex);
-            };
-
-            var ct = new CancellationTokenSource(200_000).Token;
-            var items1 = new Dictionary<string, object[]>
-            {
-                { "Key1", new object[] { "Value1", 1, 1.1, null, DateTime.Now } },
-                { "Key2", new object[] { "Value2", 2, 2.2, null, DateTime.Now } },
-            };
-
-            GoogleUtils.WriteByKeyWithTimer(client, sheetName, 0, 1, items1, 5000, Error, ct);
-            Thread.Sleep(1000);
-
-            var items2 = new Dictionary<string, object[]>
-            {
-                { "Key2", new object[] { "Value22", 2, 2.2, null, DateTime.Now } },
-                { "Key3", new object[] { "Value3", 3, 3.2, null, DateTime.Now } },
-            };
-            GoogleUtils.WriteByKeyWithTimer(client, sheetName, 0, 1, items2, 5000, Error, ct);
-            Thread.Sleep(6000);
-
-            var items3 = new Dictionary<string, object[]>
-            {
-                { "Key2", new object[] { "Value222", 2, 2.2, null, DateTime.Now } },
-                { "Key4", new object[] { "Value4", 4, 4.2, null, DateTime.Now } },
-            };
-            GoogleUtils.WriteByKeyWithTimer(client, sheetName, 0, 1, items3, 5000, Error, ct);
         }
 
         private static GoogleSheetsClient GetClient(string json = null)

@@ -5,7 +5,13 @@ using System.Threading.Tasks;
 
 namespace GoogleSheetsHelper
 {
-    public class SheetUpdater
+    /// <summary>
+    /// Позволяет обновлять гугл таблицу из разных потоков.
+    /// Собирает данные через метод Add.
+    /// Пересылает все данные в гугл таблицу через метод Send и очищает внутреннюю коллекцию данных.
+    /// Использует GoogleUtils.WriteByKey.
+    /// </summary>
+    public class GoogleSheetUpdater
     {
         private GoogleSheetsClient _client;
         private string _sheetName;
@@ -16,7 +22,7 @@ namespace GoogleSheetsHelper
         private readonly object _lockUpdateValues = new object();
         private readonly SemaphoreSlim _lockSend = new SemaphoreSlim(1, 1);
 
-        public SheetUpdater(GoogleSheetsClient client, string sheetName, int columnKey, int columnStartWrite)
+        public GoogleSheetUpdater(GoogleSheetsClient client, string sheetName, int columnKey, int columnStartWrite)
         {
             _client = client;
             _sheetName = sheetName;
@@ -45,13 +51,13 @@ namespace GoogleSheetsHelper
 
         public async Task Send(bool isThrowException = true, CancellationToken ct = default)
         {
-            await _lockSend.WaitAsync();
+            await _lockSend.WaitAsync().ConfigureAwait(false);
             try
             {
                 var items = GetValues();
                 if (items == null || items.Count == 0)
                     return;
-                await GoogleUtils.WriteByKey(_client, _sheetName, _columnKey, _columnStartWrite, items, ct).ConfigureAwait(false);
+                await GoogleUtils.WriteByKey(_client, _sheetName, _columnKey, _columnStartWrite, items, ct: ct).ConfigureAwait(false);
                 RemoveValues(items);
             }
             catch
