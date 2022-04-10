@@ -12,12 +12,14 @@ namespace GoogleSheetsHelper
 {
     public partial class GoogleSheetsClient
     {
-        public static string DateTimeFormatDefault = "yyyy-mm-dd hh:mm:ss";
-        private static readonly string ApplicationName = "GoogleSheetsHelper";
+        public const string DateTimeFormatDefault = "dd.MM.yyyy hh:mm:ss";
 
         public string FileClientJson { get; private set; }
         public string SpreadsheetId { get; private set; }
+        public string DateTimeFormat { get; set; } = DateTimeFormatDefault;
 
+        private static readonly string ApplicationName = "GoogleSheetsHelper";
+        
         private Lazy<SheetsService> _service;
         private Lazy<Spreadsheet> _spreadsheet;
 
@@ -87,7 +89,7 @@ namespace GoogleSheetsHelper
                 numberFormat = new NumberFormat
                 {
                     Type = "number",
-                    Pattern = cell.DateTimeFormat ?? DateTimeFormatDefault
+                    Pattern = cell.DateTimeFormat ?? DateTimeFormat
                 };
             }
 

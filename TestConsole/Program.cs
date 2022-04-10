@@ -142,6 +142,7 @@ namespace TestConsole
                 { "Key2", new object[] { "Value2", 2, 2.2, (decimal)2.2, null, DateTime.Now } },
             };
             var client = GetClient();
+            //client.DateTimeFormat = "dd.MM.yyyy";
             GoogleUtils.WriteByKey(client, "WriteByKey", 0, 1, items, titles).Wait();
         }
 
