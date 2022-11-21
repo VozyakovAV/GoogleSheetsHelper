@@ -10,12 +10,12 @@ namespace TestConsole
 {
     class Program
     {
-        private static string JsonClient0 = @"C:\MyApp\google_client.json";
-        private static string JsonClient1 = @"C:\MyApp\google_client1.json";
-        private static string JsonClient2 = @"C:\MyApp\google_client2.json";
-        private static string JsonClient3 = @"C:\MyApp\google_client3.json";
-        private static string JsonClient4 = @"C:\MyApp\google_client4.json";
-        private static string JsonClient5 = @"C:\MyApp\google_client5.json";
+        private static string JsonClient0 = @"C:\MyApp\Google\google_client.json";
+        private static string JsonClient1 = @"C:\MyApp\Google\google_client1.json";
+        private static string JsonClient2 = @"C:\MyApp\Google\google_client2.json";
+        private static string JsonClient3 = @"C:\MyApp\Google\google_client3.json";
+        private static string JsonClient4 = @"C:\MyApp\Google\google_client4.json";
+        private static string JsonClient5 = @"C:\MyApp\Google\google_client5.json";
 
         private static string TableId = "1_T-ENPjpjhfEiVmoSNpYZDrhfEpiwCFNeuPyNNwL2uI";
         private static string SheetName = "My Sheet";
@@ -30,6 +30,7 @@ namespace TestConsole
             //TestRead();
             //TestStressRead();
             //DeleteSheet();
+            TestWriteByKey();
             TestWriteByKey();
             //TestUpdater();
 
@@ -141,9 +142,11 @@ namespace TestConsole
                 { "Key1", new object[] { "Value1", 1, 1.1, (decimal)2.1, null, DateTime.Now } },
                 { "Key2", new object[] { "Value2", 2, 2.2, (decimal)2.2, null, DateTime.Now } },
             };
-            var client = GetClient();
-            //client.DateTimeFormat = "dd.MM.yyyy";
-            GoogleUtils.WriteByKey(client, "WriteByKey", 0, 1, items, titles).Wait();
+            using (var client = GetClient())
+            {
+                //client.DateTimeFormat = "dd.MM.yyyy";
+                GoogleUtils.WriteByKey(client, "WriteByKey", 0, 1, items, titles).Wait();
+            }
         }
 
         private static void TestUpdater()

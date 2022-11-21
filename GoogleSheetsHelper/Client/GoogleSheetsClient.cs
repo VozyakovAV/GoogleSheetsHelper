@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace GoogleSheetsHelper
 {
-    public partial class GoogleSheetsClient
+    public partial class GoogleSheetsClient : IDisposable
     {
         public const string DateTimeFormatDefault = "dd.MM.yyyy hh:mm:ss";
 
@@ -138,6 +138,12 @@ namespace GoogleSheetsHelper
                 UserEnteredFormat = userEnteredFormat,
             };
             return cellData;
+        }
+
+        public void Dispose()
+        {
+            if (_service.IsValueCreated)
+                _service.Value.Dispose();
         }
     }
 }
