@@ -15,18 +15,21 @@ namespace GoogleSheetsHelper
             var requestBody = new BatchUpdateSpreadsheetRequest { Requests = new List<Request>() };
             foreach (var req in data)
             {
-                var r = CreateUpdateRequest(req);
+                var r = await CreateUpdateRequest(req).ConfigureAwait(false);
                 requestBody.Requests.Add(r);
             }
             var request = _service.Value.Spreadsheets.BatchUpdate(requestBody, SpreadsheetId);
             var response = await request.ExecuteAsync(ct).ConfigureAwait(false);
         }
 
-        private Request CreateUpdateRequest(GoogleSheetUpdateRequest r)
+        private async Task<Request> CreateUpdateRequest(GoogleSheetUpdateRequest r)
         {
             var sheetId = GetSheetId(r.SheetName);
             if (sheetId == null)
-                throw new ArgumentException($"Не найдена таблица {r.SheetName}");
+            {
+                await AddSheet(r.SheetName).ConfigureAwait(false);
+                sheetId = GetSheetId(r.SheetName);
+            }
 
             var gc = new GridCoordinate
             {

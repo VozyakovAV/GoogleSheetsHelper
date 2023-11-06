@@ -14,18 +14,21 @@ namespace GoogleSheetsHelper
             var requestsBody = new BatchUpdateSpreadsheetRequest { Requests = new List<Request>() };
             foreach (var req in data)
             {
-                var r = CreateAppendRequest(req);
+                var r = await CreateAppendRequest(req).ConfigureAwait(false);
                 requestsBody.Requests.Add(r);
             }
             var request = _service.Value.Spreadsheets.BatchUpdate(requestsBody, SpreadsheetId);
             var response = await request.ExecuteAsync(ct).ConfigureAwait(false);
         }
 
-        private Request CreateAppendRequest(GoogleSheetAppendRequest r)
+        private async Task<Request> CreateAppendRequest(GoogleSheetAppendRequest r)
         {
             var sheetId = GetSheetId(r.SheetName);
             if (sheetId == null)
-                throw new ArgumentException($"Не найдена таблица {r.SheetName}");
+            {
+                await AddSheet(r.SheetName).ConfigureAwait(false);
+                sheetId = GetSheetId(r.SheetName);
+            }
 
             var listRowData = new List<RowData>();
             var request = new Request

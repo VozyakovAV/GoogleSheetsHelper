@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace GoogleSheetsHelper
 {
-    public static class GoogleUtils
+    public static partial class GoogleUtils
     {
         /// <summary>
         /// Вставить или обновить значения в гугл таблицу по ключу
@@ -13,10 +13,16 @@ namespace GoogleSheetsHelper
         /// <param name="client">Клиент</param>
         /// <param name="sheetName">Название листа</param>
         /// <param name="columnKey">Номер колонки с ключом</param>
-        /// <param name="columnStartWrite">Начальный номер колонки для вставки значений</param>
+        /// <param name="columnStart">Начальный номер колонки для вставки значений</param>
         /// <param name="values">Значения (ключ (строка), массив значений)</param>
-        public static async Task WriteByKey(GoogleSheetsClient client, string sheetName, int columnKey, int columnStartWrite, 
-            Dictionary<string, object[]> values, string[] titles = null, CancellationToken ct = default)
+        public static async Task WriteByKey(
+            GoogleSheetsClient client, 
+            string sheetName, 
+            IDictionary<string, object[]> values, 
+            int columnKey, 
+            int columnStart, 
+            string[] titles = null, 
+            CancellationToken ct = default)
         {
             if (values == null || values.Count == 0)
                 return;
@@ -29,7 +35,7 @@ namespace GoogleSheetsHelper
             // Если нет таблицы, то сначала вставляем заголовки
             if (data == null && titles != null)
             {
-                requestsAppend.Add(CreateAppendRequest(sheetName, columnKey, "Key", columnStartWrite, titles));
+                requestsAppend.Add(CreateAppendRequest(sheetName, columnKey, "Key", columnStart, titles));
             }
 
             // Вставляем контент
@@ -37,9 +43,9 @@ namespace GoogleSheetsHelper
             {
                 var row = GetRowByValue(data, columnKey, item.Key);
                 if (row == null)
-                    requestsAppend.Add(CreateAppendRequest(sheetName, columnKey, item.Key, columnStartWrite, item.Value));
+                    requestsAppend.Add(CreateAppendRequest(sheetName, columnKey, item.Key, columnStart, item.Value));
                 else
-                    requestsUpdate.AddRange(CreateUpdateRequests(sheetName, columnStartWrite, row.Value, item.Value));
+                    requestsUpdate.AddRange(CreateUpdateRequests(sheetName, columnStart, row.Value, item.Value));
             }
 
             // Отправляем данные

@@ -30,8 +30,8 @@ namespace TestConsole
             //TestRead();
             //TestStressRead();
             //DeleteSheet();
-            TestWriteByKey();
-            TestWriteByKey();
+            TestWrite2();
+            //TestWriteByKey();
             //TestUpdater();
 
             Console.WriteLine($"Elapsed: {sw.Elapsed}");
@@ -134,6 +134,19 @@ namespace TestConsole
             client.Update(requests).Wait();
         }
 
+        private static void TestWrite2()
+        {
+            var titles = new[] { "Заголовок1", "Заголовок2", "Заголовок3", "Заголовок4", null, "Время обновления" };
+            var items = new List<object[]>
+            {
+                { new object[] { "Value1", 1, 1.1, (decimal)2.1, null, DateTime.Now } },
+                { new object[] { "Value2", 2, 2.2, (decimal)2.2, null, DateTime.Now } },
+            };
+
+            using var client = GetClient();
+            GoogleUtils.Write(client, "Write", items, 1, 1, 5, titles).Wait();
+        }
+
         private static void TestWriteByKey()
         {
             var titles = new[] { "Заголовок1", "Заголовок2", "Заголовок3", "Заголовок4", null, "Время обновления" };
@@ -144,8 +157,7 @@ namespace TestConsole
             };
             using (var client = GetClient())
             {
-                //client.DateTimeFormat = "dd.MM.yyyy";
-                GoogleUtils.WriteByKey(client, "WriteByKey", 0, 1, items, titles).Wait();
+                GoogleUtils.WriteByKey(client, "WriteByKey", items, 0, 1, titles).Wait();
             }
         }
 
