@@ -25,12 +25,12 @@ namespace TestConsole
             var sw = Stopwatch.StartNew();
 
             //CreateSheet();
-            //GetSheets();
+            GetSheets();
             //TestWrite();
             //TestRead();
             //TestStressRead();
             //DeleteSheet();
-            TestWrite2();
+            //TestWrite2();
             //TestWriteByKey();
             //TestUpdater();
 

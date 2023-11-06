@@ -14,31 +14,29 @@ namespace GoogleSheetsHelper
     {
         public const string DateTimeFormatDefault = "dd.MM.yyyy hh:mm:ss";
 
-        public string FileClientJson { get; private set; }
-        public string SpreadsheetId { get; private set; }
-        public string DateTimeFormat { get; set; } = DateTimeFormatDefault;
+        public string FileClientJson { get; }
+        public string SpreadsheetId { get; }
+        public string DateTimeFormat { get; set; }
 
         private static readonly string ApplicationName = "GoogleSheetsHelper";
         
-        private Lazy<SheetsService> _service;
+        private readonly Lazy<SheetsService> _service;
         private Lazy<Spreadsheet> _spreadsheet;
 
         public GoogleSheetsClient(string fileClientJson, string spreadsheetId)
         {
             FileClientJson = fileClientJson;
             SpreadsheetId = spreadsheetId;
-            _service = new Lazy<SheetsService>(() => Init());
+            DateTimeFormat = DateTimeFormatDefault;
+            _service = new Lazy<SheetsService>(Init);
             ResetSpreadsheet();
         }
 
         private SheetsService Init()
         {
-            GoogleCredential credential;
-            using (var stream = new FileStream(FileClientJson, FileMode.Open, FileAccess.Read))
-            {
-                var scopes = new[] { SheetsService.Scope.Spreadsheets };
-                credential = GoogleCredential.FromStream(stream).CreateScoped(scopes);
-            }
+            using var stream = new FileStream(FileClientJson, FileMode.Open, FileAccess.Read);
+            var scopes = new[] { SheetsService.Scope.Spreadsheets };
+            var credential = GoogleCredential.FromStream(stream).CreateScoped(scopes);
 
             var service = new SheetsService(new BaseClientService.Initializer()
             {
