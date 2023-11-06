@@ -41,20 +41,20 @@ namespace TestConsole
         static void CreateSheet()
         {
             var client = GetClient();
-            client.AddSheetIfNotExist(SheetName).Wait();
+            client.AddSheetAsync(SheetName, ifExistNoAdd: true).Wait();
         }
 
         static void GetSheets()
         {
             var client = GetClient();
-            var sheets = client.GetSheets().Result;
+            var sheets = client.GetSheetsAsync().Result;
             sheets.ToList().ForEach(x => Console.WriteLine($"Sheet: {x}"));
         }
 
         static void DeleteSheet()
         {
             var client = GetClient();
-            client.DeleteSheet(SheetName).Wait();
+            client.DeleteSheetAsync(SheetName).Wait();
         }
 
         static void TestRead()

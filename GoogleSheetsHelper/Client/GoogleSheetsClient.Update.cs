@@ -8,20 +8,20 @@
             var requestBody = new BatchUpdateSpreadsheetRequest { Requests = new List<Request>() };
             foreach (var req in data)
             {
-                var r = await CreateUpdateRequest(req).ConfigureAwait(false);
+                var r = await CreateUpdateRequest(req, ct).ConfigureAwait(false);
                 requestBody.Requests.Add(r);
             }
-            var request = _service.Value.Spreadsheets.BatchUpdate(requestBody, SpreadsheetId);
+            var request = _service.Spreadsheets.BatchUpdate(requestBody, SpreadsheetId);
             await request.ExecuteAsync(ct).ConfigureAwait(false);
         }
 
-        private async Task<Request> CreateUpdateRequest(GoogleSheetUpdateRequest r)
+        private async Task<Request> CreateUpdateRequest(GoogleSheetUpdateRequest r, CancellationToken ct = default)
         {
-            var sheetId = GetSheetId(r.SheetName);
+            var sheetId = await GetSheetIdAsync(r.SheetName, ct);
             if (sheetId == null)
             {
-                await AddSheet(r.SheetName).ConfigureAwait(false);
-                sheetId = GetSheetId(r.SheetName);
+                await AddSheetAsync(r.SheetName, ct: ct).ConfigureAwait(false);
+                sheetId = await GetSheetIdAsync(r.SheetName, ct).ConfigureAwait(false);
             }
 
             var gc = new GridCoordinate

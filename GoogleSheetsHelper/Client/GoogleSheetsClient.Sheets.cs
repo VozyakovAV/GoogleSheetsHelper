@@ -3,23 +3,10 @@
     public partial class GoogleSheetsClient
     {
         /// <summary>Получить список листов</summary>
-        public async Task<IList<string>> GetSheets(CancellationToken ct = default)
+        public async Task<IList<string>> GetSheetsAsync(CancellationToken ct = default)
         {
-            var response = await _service.Value.Spreadsheets.Get(SpreadsheetId).ExecuteAsync(ct).ConfigureAwait(false);
-            var result = response.Sheets.Select(x => x.Properties.Title).ToList();
-            return result;
-        }
-
-        /// <summary>Создать лист если нету</summary>
-        public async Task<bool> AddSheetIfNotExist(string title, int? columnCount = null, int? rowCount = null, CancellationToken ct = default)
-        {
-            var sheets = await GetSheets(ct).ConfigureAwait(false);
-            if (!sheets.Any(x => string.Equals(x, title, StringComparison.OrdinalIgnoreCase)))
-            {
-                await AddSheet(title, columnCount, rowCount, ct).ConfigureAwait(false);
-                return true;
-            }
-            return false;
+            await UpdateSheetsAsync(ct).ConfigureAwait(false);
+            return _sheets.Select(x => x.Title).ToList();
         }
 
         /// <summary>
@@ -28,41 +15,77 @@
         /// <param name="title">Название листа</param>
         /// <param name="columnCount">Количество колонок</param>
         /// <param name="rowCount">Количество строк</param>
-        public async Task AddSheet(string title, int? columnCount = null, int? rowCount = null, CancellationToken ct = default)
+        public async Task AddSheetAsync(string title, int? columnCount = null, int? rowCount = null,
+            bool ifExistNoAdd = false, CancellationToken ct = default)
         {
-            var requests = new BatchUpdateSpreadsheetRequest { Requests = new List<Request>() };
-            var request = new Request
+            if (ifExistNoAdd)
             {
-                AddSheet = new AddSheetRequest
+                var sheets = await GetSheetsAsync(ct).ConfigureAwait(false);
+                if (sheets.Any(x => x.EqualsIgnoreCase(title)))
+                    return;
+            }
+
+            var requests = new BatchUpdateSpreadsheetRequest
+            {
+                Requests =
                 {
-                    Properties = new SheetProperties 
-                    { 
-                        Title = title,
-                        GridProperties = new GridProperties
+                    new Request
+                    {
+                        AddSheet = new AddSheetRequest
                         {
-                            ColumnCount = columnCount,
-                            RowCount = rowCount,
+                            Properties = new SheetProperties
+                            {
+                                Title = title,
+                                GridProperties = new GridProperties
+                                {
+                                    ColumnCount = columnCount,
+                                    RowCount = rowCount,
+                                }
+                            }
                         }
                     }
                 }
             };
-            requests.Requests.Add(request);
-            await _service.Value.Spreadsheets.BatchUpdate(requests, SpreadsheetId).ExecuteAsync(ct).ConfigureAwait(false);
+            await _service.Spreadsheets.BatchUpdate(requests, SpreadsheetId).ExecuteAsync(ct).ConfigureAwait(false);
         }
 
-        public async Task DeleteSheet(string sheetName, CancellationToken ct = default)
+        public async Task DeleteSheetAsync(string title, CancellationToken ct = default)
         {
-            var sheetId = GetSheetId(sheetName) ?? throw new ArgumentException($"Не найдена таблица {sheetName}");
-            var requests = new BatchUpdateSpreadsheetRequest { Requests = new List<Request>() };
-            var request = new Request
-            {
-                DeleteSheet = new DeleteSheetRequest
+            var sheetId = await GetSheetIdAsync(title, ct).ConfigureAwait(false) ?? throw new ArgumentException($"Not found sheet {title}");
+            var requests = new BatchUpdateSpreadsheetRequest
+            { 
+                Requests =
                 {
-                    SheetId = sheetId
+                    new Request
+                    {
+                        DeleteSheet = new DeleteSheetRequest
+                        {
+                            SheetId = sheetId
+                        }
+                    }
                 }
             };
-            requests.Requests.Add(request);
-            await _service.Value.Spreadsheets.BatchUpdate(requests, SpreadsheetId).ExecuteAsync(ct).ConfigureAwait(false);
+            await _service.Spreadsheets.BatchUpdate(requests, SpreadsheetId).ExecuteAsync(ct).ConfigureAwait(false);
+        }
+
+        private async Task UpdateSheetsAsync(CancellationToken ct = default)
+        {
+            var response = await _service.Spreadsheets.Get(SpreadsheetId).ExecuteAsync(ct).ConfigureAwait(false);
+            _sheets = response.Sheets
+                .Where(x => x.Properties.SheetId != null)
+                .Select(x => new Models.GoogleSheet(x.Properties.SheetId.Value, x.Properties.Title))
+                .ToList();
+        }
+
+        private async Task<int?> GetSheetIdAsync(string title, CancellationToken ct = default)
+        {
+            var sheet = _sheets.FirstOrDefault(x => x.Title.EqualsIgnoreCase(title));
+            if (sheet == null)
+            {
+                await UpdateSheetsAsync(ct).ConfigureAwait(false);
+                sheet = _sheets.FirstOrDefault(x => x.Title.EqualsIgnoreCase(title));
+            }
+            return sheet?.Id;
         }
     }
 }

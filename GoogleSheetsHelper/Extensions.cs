@@ -12,5 +12,10 @@
                 Red = color.R / 255f
             };
         }
+
+        public static bool EqualsIgnoreCase(this string value, string value2)
+        {
+            return string.Equals(value, value2, StringComparison.OrdinalIgnoreCase);
+        }
     }
 }

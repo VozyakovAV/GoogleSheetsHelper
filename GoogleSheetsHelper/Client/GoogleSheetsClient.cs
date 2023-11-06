@@ -9,19 +9,18 @@
 
         private static readonly string ApplicationName = "GoogleSheetsHelper";
         
-        private readonly Lazy<SheetsService> _service;
-        private Lazy<Spreadsheet> _spreadsheet;
+        private readonly SheetsService _service;
+        private IList<Models.GoogleSheet> _sheets;
 
         public GoogleSheetsClient(string fileClientJson, string spreadsheetId)
         {
             FileClientJson = fileClientJson;
             SpreadsheetId = spreadsheetId;
             DateTimeFormat = DateTimeFormatDefault;
-            _service = new Lazy<SheetsService>(Init);
-            ResetSpreadsheet();
+            _service = GetService();
         }
 
-        private SheetsService Init()
+        private SheetsService GetService()
         {
             using var stream = new FileStream(FileClientJson, FileMode.Open, FileAccess.Read);
             var scopes = new[] { SheetsService.Scope.Spreadsheets };
@@ -34,30 +33,6 @@
             });
 
             return service;
-        }
-
-        private void ResetSpreadsheet()
-        {
-            _spreadsheet = new Lazy<Spreadsheet>(() => GetSpreadsheet().Result);
-        }
-
-        private async Task<Spreadsheet> GetSpreadsheet()
-        {
-            return await _service.Value.Spreadsheets.Get(SpreadsheetId).ExecuteAsync().ConfigureAwait(false);
-        }
-
-        private int? GetSheetId(string sheetName)
-        {
-            var sheet = _spreadsheet.Value.Sheets.FirstOrDefault(s => 
-                s.Properties.Title.Equals(sheetName, StringComparison.OrdinalIgnoreCase));
-
-            if (sheet == null)
-            {
-                ResetSpreadsheet();
-                sheet = _spreadsheet.Value.Sheets.FirstOrDefault(s => 
-                    s.Properties.Title.Equals(sheetName, StringComparison.OrdinalIgnoreCase));
-            }
-            return sheet?.Properties.SheetId;
         }
 
         private CellData CreateCellData(GoogleSheetCell cell)
@@ -125,8 +100,7 @@
 
         public void Dispose()
         {
-            if (_service.IsValueCreated)
-                _service.Value.Dispose();
+            _service.Dispose();
         }
     }
 }
