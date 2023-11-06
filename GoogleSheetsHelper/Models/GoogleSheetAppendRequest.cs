@@ -2,12 +2,13 @@
 {
     public class GoogleSheetAppendRequest
     {
-        public string Title { get; set; }
+        public string SheetName { get; set; }
+        internal int SheetId { get; set; }
         public IList<GoogleSheetRow> Rows { get; set; }
 
-        public GoogleSheetAppendRequest(string title)
+        public GoogleSheetAppendRequest(string sheetName)
         {
-            Title = title;
+            SheetName = sheetName;
             Rows = new List<GoogleSheetRow>();
         }
     }

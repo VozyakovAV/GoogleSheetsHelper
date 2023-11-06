@@ -41,7 +41,7 @@ namespace TestConsole
         static void CreateSheet()
         {
             var client = GetClient();
-            client.AddSheetAsync(SheetName, noAddIfExist: true).Wait();
+            client.AddSheetAsync(SheetName).Wait();
         }
 
         static void GetSheets()
@@ -60,7 +60,7 @@ namespace TestConsole
         static void TestRead()
         {
             var client = GetClient();
-            var list = client.Get(SheetName).Result;
+            var list = client.GetData(SheetName).Result;
             foreach (var line in list)
             {
                 foreach (var value in line)
@@ -79,7 +79,7 @@ namespace TestConsole
                     for (int i = 0; i < 10000; i++)
                     {
                         var client = GetClient(json);
-                        var list = client.Get(SheetName).Result;
+                        var list = client.GetData(SheetName).Result;
                         var n = Interlocked.Increment(ref num);
                         Console.WriteLine($"{n}, {i}: {json}");
                         Thread.Sleep(1000);

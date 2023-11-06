@@ -96,6 +96,14 @@
             return cellData;
         }
 
+        private static BatchUpdateSpreadsheetRequest GetGoogleRequest(params Request[] requests)
+        {
+            var res = new BatchUpdateSpreadsheetRequest { Requests = new List<Request>() };
+            foreach (var request in requests)
+                res.Requests.Add(request);
+            return res;
+        }
+
         public void Dispose()
         {
             _service.Dispose();

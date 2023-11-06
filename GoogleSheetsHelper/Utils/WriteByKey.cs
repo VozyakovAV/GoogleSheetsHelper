@@ -45,7 +45,7 @@
 
             // Отправляем данные
             if (requestsAppend.Count > 0)
-                await client.Append(requestsAppend, ct).ConfigureAwait(false);
+                await client.AppendAsync(requestsAppend, ct).ConfigureAwait(false);
             if (requestsUpdate.Count > 0)
                 await client.Update(requestsUpdate, ct).ConfigureAwait(false);
         }

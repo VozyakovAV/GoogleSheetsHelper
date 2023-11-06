@@ -2,33 +2,31 @@
 {
     public partial class GoogleSheetsClient
     {
-        public async Task Append(IEnumerable<GoogleSheetAppendRequest> data, CancellationToken ct = default)
+        public async Task AppendAsync(IEnumerable<GoogleSheetAppendRequest> data, CancellationToken ct = default)
         {
-            var requestsBody = new BatchUpdateSpreadsheetRequest { Requests = new List<Request>() };
+            var sheetsName = data.Select(x => x.SheetName).Distinct().ToList();
+            await AddSheetsAsync(sheetsName, ct: ct).ConfigureAwait(false);
+            var sheets = await GetSheetsDataAsync(ct).ConfigureAwait(false);
+            var requestsBody = GetGoogleRequest();
+
             foreach (var req in data)
             {
-                var r = await CreateAppendRequest(req, ct).ConfigureAwait(false);
-                requestsBody.Requests.Add(r);
+                req.SheetId = sheets.First(x => x.Title.EqualsIgnoreCase(req.SheetName)).Id;
+                requestsBody.Requests.Add(CreateAppendRequest(req));
             }
+
             var request = _service.Spreadsheets.BatchUpdate(requestsBody, SpreadsheetId);
             await request.ExecuteAsync(ct).ConfigureAwait(false);
         }
 
-        private async Task<Request> CreateAppendRequest(GoogleSheetAppendRequest r, CancellationToken ct = default)
+        private Request CreateAppendRequest(GoogleSheetAppendRequest r)
         {
-            var sheetId = await GetSheetIdAsync(r.Title, ct).ConfigureAwait(false);
-            if (sheetId == null)
-            {
-                await AddSheetAsync(r.Title, ct: ct).ConfigureAwait(false);
-                sheetId = await GetSheetIdAsync(r.Title, ct).ConfigureAwait(false);
-            }
-
             var listRowData = new List<RowData>();
             var request = new Request
             {
                 AppendCells = new AppendCellsRequest
                 {
-                    SheetId = sheetId,
+                    SheetId = r.SheetId,
                     Rows = listRowData,
                     Fields = "*",
                 },

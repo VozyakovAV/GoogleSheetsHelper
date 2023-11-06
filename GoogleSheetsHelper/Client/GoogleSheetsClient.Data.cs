@@ -2,14 +2,14 @@
 {
     public partial class GoogleSheetsClient
     {
-        public async Task Clear(string range, CancellationToken ct = default)
+        public async Task ClearData(string range, CancellationToken ct = default)
         {
             var requestBody = new ClearValuesRequest();
             var deleteRequest = _service.Spreadsheets.Values.Clear(requestBody, SpreadsheetId, range);
             await deleteRequest.ExecuteAsync(ct).ConfigureAwait(false);
         }
 
-        public async Task<IList<IList<object>>> Get(string range, CancellationToken ct = default)
+        public async Task<IList<IList<object>>> GetData(string range, CancellationToken ct = default)
         {
             var request = _service.Spreadsheets.Values.Get(SpreadsheetId, range);
             request.ValueRenderOption = SpreadsheetsResource.ValuesResource.GetRequest.ValueRenderOptionEnum.UNFORMATTEDVALUE;
@@ -22,14 +22,14 @@
         {
             try
             {
-                return await Get(range, ct);
+                return await GetData(range, ct);
             }
             catch (Exception ex)
             {
                 if (ex.Message.Contains("Unable to parse range")) // не найдена таблица
                 {
                     await AddSheetAsync(range, ct: ct).ConfigureAwait(false);
-                    return await Get(range, ct).ConfigureAwait(false);
+                    return await GetData(range, ct).ConfigureAwait(false);
                 }
                 else
                 {
