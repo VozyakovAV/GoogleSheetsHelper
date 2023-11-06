@@ -2,15 +2,13 @@
 {
     public partial class GoogleSheetsClient : IDisposable
     {
+        public const string ApplicationName = "GoogleSheetsHelper";
         public const string DateTimeFormatDefault = "dd.MM.yyyy hh:mm:ss";
         public string FileClientJson { get; }
         public string SpreadsheetId { get; }
         public string DateTimeFormat { get; set; }
-
-        private static readonly string ApplicationName = "GoogleSheetsHelper";
         
         private readonly SheetsService _service;
-        private IList<Models.GoogleSheet> _sheets;
 
         public GoogleSheetsClient(string fileClientJson, string spreadsheetId)
         {

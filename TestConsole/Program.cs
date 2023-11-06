@@ -41,7 +41,7 @@ namespace TestConsole
         static void CreateSheet()
         {
             var client = GetClient();
-            client.AddSheetAsync(SheetName, ifExistNoAdd: true).Wait();
+            client.AddSheetAsync(SheetName, noAddIfExist: true).Wait();
         }
 
         static void GetSheets()
@@ -54,7 +54,7 @@ namespace TestConsole
         static void DeleteSheet()
         {
             var client = GetClient();
-            client.DeleteSheetAsync(SheetName).Wait();
+            client.RemoveSheetAsync(SheetName).Wait();
         }
 
         static void TestRead()
