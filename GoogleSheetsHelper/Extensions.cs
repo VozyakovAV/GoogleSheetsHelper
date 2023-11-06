@@ -1,12 +1,10 @@
-﻿using Google.Apis.Sheets.v4.Data;
-
-namespace GoogleSheetsHelper
+﻿namespace GoogleSheetsHelper
 {
     public static class Extensions
     {
-        public static Color ToGoogleColor(this System.Drawing.Color color)
+        public static GoogleColor ToGoogleColor(this DrawingColor color)
         {
-            return new Color
+            return new GoogleColor
             {
                 Alpha = color.A / 255f,
                 Blue = color.B / 255f,

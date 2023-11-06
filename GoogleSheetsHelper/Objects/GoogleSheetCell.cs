@@ -1,7 +1,4 @@
-﻿using System;
-using System.Drawing;
-
-namespace GoogleSheetsHelper
+﻿namespace GoogleSheetsHelper
 {
     public class GoogleSheetCell
     {
@@ -27,7 +24,7 @@ namespace GoogleSheetsHelper
         public bool? Bold { get; set; }
 
         /// <summary>Стиль ячейки: цвет</summary>
-        public Color? BackgroundColor { get; set; }
+        public DrawingColor? BackgroundColor { get; set; }
 
         /// <summary>Стиль ячейки: выравнивание по горизонтали</summary>
         public HorizontalAlignment? HorizontalAlignment { get; set; }
@@ -59,29 +56,19 @@ namespace GoogleSheetsHelper
         public static GoogleSheetCell Create(object value)
         {
             if (value == null) return null;
-
-            switch (value)
+            return value switch
             {
-                case string t: 
-                    return new GoogleSheetCell(t);
-                case byte t:
-                    return new GoogleSheetCell(t);
-                case short t:
-                    return new GoogleSheetCell(t);
-                case int t:
-                    return new GoogleSheetCell(t);
-                case long t:
-                    return new GoogleSheetCell(t);
-                case double t:
-                    return new GoogleSheetCell(t);
-                case decimal t:
-                    return new GoogleSheetCell((double)t);
-                case bool t:
-                    return new GoogleSheetCell(t);
-                case DateTime t:
-                    return new GoogleSheetCell(t);
-            }
-            return new GoogleSheetCell(value.ToString());
+                string t => new GoogleSheetCell(t),
+                byte t => new GoogleSheetCell(t),
+                short t => new GoogleSheetCell(t),
+                int t => new GoogleSheetCell(t),
+                long t => new GoogleSheetCell(t),
+                double t => new GoogleSheetCell(t),
+                decimal t => new GoogleSheetCell((double)t),
+                bool t => new GoogleSheetCell(t),
+                DateTime t => new GoogleSheetCell(t),
+                _ => new GoogleSheetCell(value.ToString()),
+            };
         }
     }
 

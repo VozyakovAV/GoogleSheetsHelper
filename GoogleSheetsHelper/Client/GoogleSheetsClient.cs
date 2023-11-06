@@ -1,19 +1,8 @@
-﻿//https://www.twilio.com/blog/2017/03/google-spreadsheets-and-net-core.html?utm_source=youtube&utm_medium=video&utm_campaign=google-sheets-dotnet
-using Google.Apis.Auth.OAuth2;
-using Google.Apis.Services;
-using Google.Apis.Sheets.v4;
-using Google.Apis.Sheets.v4.Data;
-using System;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace GoogleSheetsHelper
+﻿namespace GoogleSheetsHelper
 {
     public partial class GoogleSheetsClient : IDisposable
     {
         public const string DateTimeFormatDefault = "dd.MM.yyyy hh:mm:ss";
-
         public string FileClientJson { get; }
         public string SpreadsheetId { get; }
         public string DateTimeFormat { get; set; }
@@ -73,7 +62,8 @@ namespace GoogleSheetsHelper
 
         private CellData CreateCellData(GoogleSheetCell cell)
         {
-            if (cell == null) return new CellData();
+            if (cell == null) 
+                return new CellData();
             var numberValue = cell.NumberValue;
             var numberFormat = cell.NumberFormat == null ? null : new NumberFormat
             {
@@ -102,31 +92,26 @@ namespace GoogleSheetsHelper
 
             if (numberFormat != null)
             {
-                if (userEnteredFormat == null)
-                    userEnteredFormat = new CellFormat();
+                userEnteredFormat ??= new CellFormat();
                 userEnteredFormat.NumberFormat = numberFormat;
             }
 
             if (cell.Bold.HasValue)
             {
-                if (userEnteredFormat == null)
-                    userEnteredFormat = new CellFormat();
-                if (userEnteredFormat.TextFormat == null)
-                    userEnteredFormat.TextFormat = new TextFormat();
+                userEnteredFormat ??= new CellFormat();
+                userEnteredFormat.TextFormat ??= new TextFormat();
                 userEnteredFormat.TextFormat.Bold = cell.Bold;
             }
 
             if (cell.BackgroundColor.HasValue)
             {
-                if (userEnteredFormat == null)
-                    userEnteredFormat = new CellFormat();
+                userEnteredFormat ??= new CellFormat();
                 userEnteredFormat.BackgroundColor = cell.BackgroundColor.Value.ToGoogleColor();
             }
 
             if (cell.HorizontalAlignment.HasValue)
             {
-                if (userEnteredFormat == null)
-                    userEnteredFormat = new CellFormat();
+                userEnteredFormat ??= new CellFormat();
                 userEnteredFormat.HorizontalAlignment = cell.HorizontalAlignment.ToString();
             }
 

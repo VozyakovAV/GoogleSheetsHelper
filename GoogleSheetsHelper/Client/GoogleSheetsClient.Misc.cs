@@ -1,11 +1,4 @@
-﻿using Google.Apis.Sheets.v4;
-using Google.Apis.Sheets.v4.Data;
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace GoogleSheetsHelper
+﻿namespace GoogleSheetsHelper
 {
     public partial class GoogleSheetsClient
     {
@@ -13,7 +6,7 @@ namespace GoogleSheetsHelper
         {
             var requestBody = new ClearValuesRequest();
             var deleteRequest = _service.Value.Spreadsheets.Values.Clear(requestBody, SpreadsheetId, range);
-            var result = await deleteRequest.ExecuteAsync(ct).ConfigureAwait(false);
+            await deleteRequest.ExecuteAsync(ct).ConfigureAwait(false);
         }
 
         public async Task<IList<IList<object>>> Get(string range, CancellationToken ct = default)
@@ -40,7 +33,7 @@ namespace GoogleSheetsHelper
                 }
                 else
                 {
-                    throw ex;
+                    throw;
                 }
             }
         }

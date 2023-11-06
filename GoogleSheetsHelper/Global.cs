@@ -1,0 +1,12 @@
+﻿global using Google.Apis.Sheets.v4;
+global using Google.Apis.Sheets.v4.Data;
+global using System;
+global using System.Collections.Generic;
+global using System.Linq;
+global using System.Threading;
+global using System.Threading.Tasks;
+global using GoogleColor = Google.Apis.Sheets.v4.Data.Color;
+global using DrawingColor = System.Drawing.Color;
+global using Google.Apis.Auth.OAuth2;
+global using Google.Apis.Services;
+global using System.IO;

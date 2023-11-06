@@ -1,11 +1,4 @@
-﻿using Google.Apis.Sheets.v4.Data;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace GoogleSheetsHelper
+﻿namespace GoogleSheetsHelper
 {
     public partial class GoogleSheetsClient
     {
@@ -54,15 +47,12 @@ namespace GoogleSheetsHelper
                 }
             };
             requests.Requests.Add(request);
-            var result = await _service.Value.Spreadsheets.BatchUpdate(requests, SpreadsheetId).ExecuteAsync(ct).ConfigureAwait(false);
+            await _service.Value.Spreadsheets.BatchUpdate(requests, SpreadsheetId).ExecuteAsync(ct).ConfigureAwait(false);
         }
 
         public async Task DeleteSheet(string sheetName, CancellationToken ct = default)
         {
-            var sheetId = GetSheetId(sheetName);
-            if (sheetId == null)
-                throw new ArgumentException($"Не найдена таблица {sheetName}");
-
+            var sheetId = GetSheetId(sheetName) ?? throw new ArgumentException($"Не найдена таблица {sheetName}");
             var requests = new BatchUpdateSpreadsheetRequest { Requests = new List<Request>() };
             var request = new Request
             {
@@ -72,7 +62,7 @@ namespace GoogleSheetsHelper
                 }
             };
             requests.Requests.Add(request);
-            var result = await _service.Value.Spreadsheets.BatchUpdate(requests, SpreadsheetId).ExecuteAsync(ct).ConfigureAwait(false);
+            await _service.Value.Spreadsheets.BatchUpdate(requests, SpreadsheetId).ExecuteAsync(ct).ConfigureAwait(false);
         }
     }
 }

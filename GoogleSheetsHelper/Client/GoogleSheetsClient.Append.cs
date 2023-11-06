@@ -1,15 +1,8 @@
-﻿using Google.Apis.Sheets.v4;
-using Google.Apis.Sheets.v4.Data;
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace GoogleSheetsHelper
+﻿namespace GoogleSheetsHelper
 {
     public partial class GoogleSheetsClient
     {
-        public async Task Append(IList<GoogleSheetAppendRequest> data, CancellationToken ct = default)
+        public async Task Append(IEnumerable<GoogleSheetAppendRequest> data, CancellationToken ct = default)
         {
             var requestsBody = new BatchUpdateSpreadsheetRequest { Requests = new List<Request>() };
             foreach (var req in data)
@@ -44,7 +37,7 @@ namespace GoogleSheetsHelper
             foreach (var row in r.Rows)
             {
                 var listCellData = new List<CellData>();
-
+                
                 foreach (var cell in row)
                 {
                     var cellData = CreateCellData(cell);

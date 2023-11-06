@@ -1,7 +1,4 @@
-﻿//https://www.twilio.com/blog/2017/03/google-spreadsheets-and-net-core.html?utm_source=youtube&utm_medium=video&utm_campaign=google-sheets-dotnet
-using System;
-
-namespace GoogleSheetsHelper
+﻿namespace GoogleSheetsHelper
 {
     public partial class GoogleSheetsClient
     {

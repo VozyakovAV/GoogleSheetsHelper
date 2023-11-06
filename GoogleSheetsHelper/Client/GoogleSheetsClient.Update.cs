@@ -1,11 +1,4 @@
-﻿using Google.Apis.Sheets.v4;
-using Google.Apis.Sheets.v4.Data;
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace GoogleSheetsHelper
+﻿namespace GoogleSheetsHelper
 {
     public partial class GoogleSheetsClient
     {
@@ -19,7 +12,7 @@ namespace GoogleSheetsHelper
                 requestBody.Requests.Add(r);
             }
             var request = _service.Value.Spreadsheets.BatchUpdate(requestBody, SpreadsheetId);
-            var response = await request.ExecuteAsync(ct).ConfigureAwait(false);
+            await request.ExecuteAsync(ct).ConfigureAwait(false);
         }
 
         private async Task<Request> CreateUpdateRequest(GoogleSheetUpdateRequest r)

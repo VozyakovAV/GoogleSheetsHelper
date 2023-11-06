@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace GoogleSheetsHelper
+﻿namespace GoogleSheetsHelper
 {
     public class GoogleSheetUpdateRequest
     {
@@ -11,7 +9,7 @@ namespace GoogleSheetsHelper
 
         public GoogleSheetUpdateRequest(string sheetName)
         {
-            this.SheetName = sheetName;
+            SheetName = sheetName;
             Rows = new List<GoogleSheetRow>();
         }
     }

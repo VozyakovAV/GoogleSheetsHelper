@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace GoogleSheetsHelper
+﻿namespace GoogleSheetsHelper
 {
     public class GoogleSheetAppendRequest
     {
@@ -9,7 +7,7 @@ namespace GoogleSheetsHelper
 
         public GoogleSheetAppendRequest(string sheetName)
         {
-            this.SheetName = sheetName;
+            SheetName = sheetName;
             Rows = new List<GoogleSheetRow>();
         }
     }
