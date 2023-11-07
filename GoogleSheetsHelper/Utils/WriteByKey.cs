@@ -47,7 +47,7 @@
             if (requestsAppend.Count > 0)
                 await client.AppendAsync(requestsAppend, ct).ConfigureAwait(false);
             if (requestsUpdate.Count > 0)
-                await client.Update(requestsUpdate, ct).ConfigureAwait(false);
+                await client.UpdateAsync(requestsUpdate, ct).ConfigureAwait(false);
         }
 
         private static int? GetRowByValue(IList<IList<object>> list, int column, string value)
@@ -93,8 +93,10 @@
                 var value = values[i];
                 if (value == null) continue;
 
-                var row = new GoogleSheetRow();
-                row.Add(GoogleSheetCell.Create(value));
+                var row = new GoogleSheetRow
+                {
+                    GoogleSheetCell.Create(value)
+                };
 
                 var request = new GoogleSheetUpdateRequest(sheetName)
                 {

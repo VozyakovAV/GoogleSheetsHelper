@@ -2,6 +2,11 @@
 {
     public partial class GoogleSheetsClient
     {
+        public async Task AppendDataAsync(GoogleSheetAppendRequest data, CancellationToken ct = default)
+        {
+            await AppendDataAsync(data, ct).ConfigureAwait(false);
+        }
+
         public async Task AppendAsync(IEnumerable<GoogleSheetAppendRequest> data, CancellationToken ct = default)
         {
             var sheetsName = data.Select(x => x.SheetName).Distinct().ToList();
@@ -11,22 +16,21 @@
 
             foreach (var req in data)
             {
-                req.SheetId = sheets.First(x => x.Title.EqualsIgnoreCase(req.SheetName)).Id;
-                requestsBody.Requests.Add(CreateAppendRequest(req));
+                var sheetId = sheets.First(x => x.Title.EqualsIgnoreCase(req.SheetName)).Id;
+                requestsBody.Requests.Add(CreateAppendRequest(req, sheetId));
             }
 
-            var request = _service.Spreadsheets.BatchUpdate(requestsBody, SpreadsheetId);
-            await request.ExecuteAsync(ct).ConfigureAwait(false);
+            await _service.Spreadsheets.BatchUpdate(requestsBody, SpreadsheetId).ExecuteAsync(ct).ConfigureAwait(false);
         }
 
-        private Request CreateAppendRequest(GoogleSheetAppendRequest r)
+        private Request CreateAppendRequest(GoogleSheetAppendRequest r, int sheetId)
         {
             var listRowData = new List<RowData>();
             var request = new Request
             {
                 AppendCells = new AppendCellsRequest
                 {
-                    SheetId = r.SheetId,
+                    SheetId = sheetId,
                     Rows = listRowData,
                     Fields = "*",
                 },

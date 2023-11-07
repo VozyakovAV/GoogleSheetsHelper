@@ -2,28 +2,29 @@
 {
     public partial class GoogleSheetsClient
     {
-        /// <summary>Записать в Google таблицу</summary>
-        public async Task Update(IList<GoogleSheetUpdateRequest> data, CancellationToken ct = default)
+        public async Task UpdateDataAsync(GoogleSheetUpdateRequest data, CancellationToken ct = default)
         {
-            var requestBody = new BatchUpdateSpreadsheetRequest { Requests = new List<Request>() };
+            await UpdateAsync(new[] { data }, ct).ConfigureAwait(false);
+        }
+        
+        public async Task UpdateAsync(IList<GoogleSheetUpdateRequest> data, CancellationToken ct = default)
+        {
+            var sheetsName = data.Select(x => x.SheetName).Distinct().ToList();
+            await AddSheetsAsync(sheetsName, ct: ct).ConfigureAwait(false);
+            var sheets = await GetSheetsDataAsync(ct).ConfigureAwait(false);
+            var requestsBody = GetGoogleRequest();
+
             foreach (var req in data)
             {
-                var r = await CreateUpdateRequest(req, ct).ConfigureAwait(false);
-                requestBody.Requests.Add(r);
+                var sheetId = sheets.First(x => x.Title.EqualsIgnoreCase(req.SheetName)).Id;
+                requestsBody.Requests.Add(CreateUpdateRequest(req, sheetId));
             }
-            var request = _service.Spreadsheets.BatchUpdate(requestBody, SpreadsheetId);
-            await request.ExecuteAsync(ct).ConfigureAwait(false);
+
+            await _service.Spreadsheets.BatchUpdate(requestsBody, SpreadsheetId).ExecuteAsync(ct).ConfigureAwait(false);
         }
 
-        private async Task<Request> CreateUpdateRequest(GoogleSheetUpdateRequest r, CancellationToken ct = default)
+        private Request CreateUpdateRequest(GoogleSheetUpdateRequest r, int sheetId)
         {
-            var sheetId = await GetSheetIdAsync(r.SheetName, ct);
-            if (sheetId == null)
-            {
-                await AddSheetAsync(r.SheetName, ct: ct).ConfigureAwait(false);
-                sheetId = await GetSheetIdAsync(r.SheetName, ct).ConfigureAwait(false);
-            }
-
             var gc = new GridCoordinate
             {
                 ColumnIndex = r.ColumnStart,

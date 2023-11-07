@@ -45,7 +45,7 @@
 
             // Отправляем данные
             if (requestsAppend.Count > 0)
-                await client.Update(requestsAppend, ct).ConfigureAwait(false);
+                await client.UpdateAsync(requestsAppend, ct).ConfigureAwait(false);
         }
 
         private static IEnumerable<GoogleSheetUpdateRequest> CreateUpdateRequests2(string sheetName, int rowStart,
@@ -57,8 +57,10 @@
                 if (value == null)
                     continue;
 
-                var row = new GoogleSheetRow();
-                row.Add(GoogleSheetCell.Create(value));
+                var row = new GoogleSheetRow
+                {
+                    GoogleSheetCell.Create(value)
+                };
                 var request = new GoogleSheetUpdateRequest(sheetName)
                 {
                     ColumnStart = columnStart + i,

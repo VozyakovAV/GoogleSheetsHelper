@@ -1,4 +1,3 @@
-using Google.Apis.Util;
 using GoogleSheetsHelper;
 
 namespace UnitTests
@@ -49,11 +48,27 @@ namespace UnitTests
         }
 
         [TestMethod]
-        public void Append()
+        public void AddRemoveSheets()
+        {
+            _client.AddSheetsAsync(new[] { "Test1", "Test2", "Test3" }).Wait();
+            var sheets = _client.GetSheetsAsync().Result;
+            Assert.IsTrue(sheets.Any(x => x == "Test1"));
+            Assert.IsTrue(sheets.Any(x => x == "Test2"));
+            Assert.IsTrue(sheets.Any(x => x == "Test3"));
+
+            _client.RemoveSheetsAsync(new[] { "Test1", "Test2", "Test3" }).Wait();
+            sheets = _client.GetSheetsAsync().Result;
+            Assert.IsFalse(sheets.Any(x => x == "Test1"));
+            Assert.IsFalse(sheets.Any(x => x == "Test2"));
+            Assert.IsFalse(sheets.Any(x => x == "Test3"));
+        }
+
+        [TestMethod]
+        public void AppendData()
         {
             var sheetName = "Test";
             _client.AddSheetAsync(sheetName).Wait();
-            var append = new GoogleSheetAppendRequest(sheetName)
+            var request = new GoogleSheetAppendRequest(sheetName)
             {
                 Rows = new[]
                 {
@@ -65,7 +80,53 @@ namespace UnitTests
                     }
                 }
             };
-            _client.AppendAsync(new[] { append }).Wait();
+            _client.AppendDataAsync(request).Wait();
+        }
+
+        [TestMethod]
+        public void UpdateData()
+        {
+            var sheetName = "Test";
+            _client.AddSheetAsync(sheetName).Wait();
+            var request = new GoogleSheetUpdateRequest(sheetName)
+            {
+                ColumnStart = 1,
+                RowStart = 1,
+                Rows = new[]
+                {
+                    new GoogleSheetRow
+                    {
+                        new GoogleSheetCell("abc"),
+                        new GoogleSheetCell(123),
+                        new GoogleSheetCell(DateTime.Now),
+                    }
+                }
+            };
+            _client.UpdateDataAsync(request).Wait();
+        }
+
+        [TestMethod]
+        public void GetData()
+        {
+            var sheetName = "Test";
+            _client.AddSheetAsync(sheetName).Wait();
+            var request = new GoogleSheetUpdateRequest(sheetName)
+            {
+                ColumnStart = 1,
+                RowStart = 1,
+                Rows = new[]
+                {
+                    new GoogleSheetRow
+                    {
+                        new GoogleSheetCell("abc"),
+                        new GoogleSheetCell(123),
+                        new GoogleSheetCell(DateTime.Now),
+                    }
+                }
+            };
+            _client.UpdateDataAsync(request).Wait();
+
+            var data = _client.GetDataAsync("Test").Result;
         }
     }
 }

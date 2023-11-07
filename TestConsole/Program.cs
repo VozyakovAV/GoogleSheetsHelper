@@ -60,7 +60,7 @@ namespace TestConsole
         static void TestRead()
         {
             var client = GetClient();
-            var list = client.GetData(SheetName).Result;
+            var list = client.GetDataAsync(SheetName).Result;
             foreach (var line in list)
             {
                 foreach (var value in line)
@@ -79,7 +79,7 @@ namespace TestConsole
                     for (int i = 0; i < 10000; i++)
                     {
                         var client = GetClient(json);
-                        var list = client.GetData(SheetName).Result;
+                        var list = client.GetDataAsync(SheetName).Result;
                         var n = Interlocked.Increment(ref num);
                         Console.WriteLine($"{n}, {i}: {json}");
                         Thread.Sleep(1000);
@@ -131,7 +131,7 @@ namespace TestConsole
             
             requests.Add(request);
             var client = GetClient();
-            client.Update(requests).Wait();
+            client.UpdateAsync(requests).Wait();
         }
 
         private static void TestWrite2()

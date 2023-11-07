@@ -17,8 +17,8 @@ namespace ExportToGoogleConsole
             var column = ParseArg(args, "/column:");
             var byKey = args.Any(x => x.StartsWith("/key"));
 
-            int.TryParse(row, out var rowStart);
-            int.TryParse(column, out var columnStart);
+            _ = int.TryParse(row, out var rowStart);
+            _ = int.TryParse(column, out var columnStart);
 
             if (!File.Exists(fileClientJson))
                 throw new FileNotFoundException(fileClientJson);
