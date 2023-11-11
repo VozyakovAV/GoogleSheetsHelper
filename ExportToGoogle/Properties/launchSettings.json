@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "ExportToGoogle": {
+      "commandName": "Project",
+      "commandLineArgs": "/cmd:append /fileSource:C:\\\\TSLab\\\\Balance.csv /table:1_T-ENPjpjhfEiVmoSNpYZDrhfEpiwCFNeuPyNNwL2uI /sheet:MyData /fileGoogle:C:\\\\TSLab\\\\google_client.json"
+    }
+  }
+}

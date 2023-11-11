@@ -52,7 +52,7 @@
                 var items = GetValues();
                 if (items == null || items.Count == 0)
                     return;
-                await GoogleUtils.WriteByKey(_client, _sheetName, items, _columnKey, _columnStartWrite, ct: ct).ConfigureAwait(false);
+                await GoogleUtils.UpdateByKey(_client, _sheetName, items, _columnKey, _columnStartWrite, ct: ct).ConfigureAwait(false);
                 RemoveValues(items);
             }
             catch

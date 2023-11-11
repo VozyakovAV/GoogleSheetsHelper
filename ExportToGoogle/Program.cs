@@ -7,37 +7,41 @@ namespace ExportToGoogleConsole
     internal class Program
     {
         static void Main(string[] args)
-        {   // run.exe /file:C:\MyApp\Temp\Positions.csv /table:1_T-ENPjpjhfEiVmoSNpYZDrhfEpiwCFNeuPyNNwL2uI /sheet:TestWrite /row:0 /column:0 /key
+        {
             Init();
-            var fileClientJson = "google_client.json";
-            var file = ParseArg(args, "/file:");
+            var cmd = ParseArg(args, "/cmd:");
+            var fileGoogle = ParseArg(args, "/fileGoogle:");
+            var file = ParseArg(args, "/fileSource:");
             var table = ParseArg(args, "/table:");
             var sheet = ParseArg(args, "/sheet:");
             var row = ParseArg(args, "/row:");
             var column = ParseArg(args, "/column:");
-            var byKey = args.Any(x => x.StartsWith("/key"));
 
             _ = int.TryParse(row, out var rowStart);
             _ = int.TryParse(column, out var columnStart);
 
-            if (!File.Exists(fileClientJson))
-                throw new FileNotFoundException(fileClientJson);
+            if (!File.Exists(fileGoogle))
+                throw new FileNotFoundException(fileGoogle);
             
-            using var client = new GoogleSheetsClient(fileClientJson, table);
+            using var client = new GoogleSheetsClient(fileGoogle, table);
 
-            if (byKey)
+            if (cmd.EqualsIgnoreCase("append"))
             {
-                var items = GetItems2(file);
-                GoogleUtils.WriteByKey(client, sheet, items, rowStart, columnStart).Wait();
+                var items = GetDictionaryValues(file);
+                GoogleUtils.AppendByKey(client, sheet, items, rowStart, columnStart).Wait();
+            }
+            else if (cmd.EqualsIgnoreCase("update"))
+            {
+                var items = GetListValues(file);
+                GoogleUtils.Update(client, sheet, items, rowStart, columnStart).Wait();
             }
             else
             {
-                var items = GetItems(file);
-                GoogleUtils.Write(client, sheet, items, rowStart, columnStart).Wait();
+                throw new InvalidOperationException($"Unknown cmd: {cmd}");
             }
         }
 
-        private static IList<object[]> GetItems(string fileName)
+        private static IList<object[]> GetListValues(string fileName)
         {
             var items = new List<object[]>();
             var lines = File.ReadAllLines(fileName, Encoding.GetEncoding(1251));
@@ -47,43 +51,28 @@ namespace ExportToGoogleConsole
                 var objects = new List<object>();
                 foreach (var value in values)
                 {
-                    if (double.TryParse(value.Replace(",", "."), out var d))
-                        objects.Add(d);
-                    else if (bool.TryParse(value, out var b))
-                        objects.Add(b);
-                    else if (DateTime.TryParse(value, out var dt))
-                        objects.Add(dt);
-                    else
-                        objects.Add(value);
+                    objects.Add(GoogleUtils.ParseObject(value));
                 }
                 items.Add(objects.ToArray());
             }
             return items;
         }
 
-        private static IDictionary<string, object[]> GetItems2(string fileName)
+        private static IDictionary<object, object[]> GetDictionaryValues(string fileName)
         {
-            var items = new Dictionary<string, object[]>();
+            var items = new Dictionary<object, object[]>();
             var lines = File.ReadAllLines(fileName, Encoding.GetEncoding(1251));
             foreach (var line in lines)
             {
                 var values = line.Split(';');
                 var objects = new List<object>();
-                var key = "";
+                object key = "";
                 for (int i = 0; i < values.Length; i++)
                 {
                     var value = values[i];
                     if (i == 0)
-                        key = value;
-
-                    if (double.TryParse(value.Replace(",", "."), out var d))
-                        objects.Add(d);
-                    else if (bool.TryParse(value, out var b))
-                        objects.Add(b);
-                    else if (DateTime.TryParse(value, out var dt))
-                        objects.Add(dt);
-                    else
-                        objects.Add(value);
+                        key = GoogleUtils.ParseObject(value);
+                    objects.Add(GoogleUtils.ParseObject(value));
                 }
                 items.Add(key, objects.ToArray());
             }
@@ -116,7 +105,7 @@ namespace ExportToGoogleConsole
 
         private static string ParseArg(string[] args, string prefix)
         {
-            return args.FirstOrDefault(x => x.StartsWith(prefix))?.Replace(prefix, "")?.Trim();
+            return args.FirstOrDefault(x => x.StartsWith(prefix, StringComparison.InvariantCultureIgnoreCase))?.Replace(prefix, "")?.Trim();
         }
     }
 }

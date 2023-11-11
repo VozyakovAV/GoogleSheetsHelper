@@ -10,7 +10,7 @@
         /// <param name="columnKey">Номер колонки с ключом</param>
         /// <param name="columnStart">Начальный номер колонки для вставки значений</param>
         /// <param name="values">Значения (ключ (строка), массив значений)</param>
-        public static async Task WriteByKey(
+        public static async Task UpdateByKey(
             GoogleSheetsClient client, 
             string sheetName, 
             IDictionary<string, object[]> values, 
@@ -50,21 +50,22 @@
                 await client.UpdateAsync(requestsUpdate, ct).ConfigureAwait(false);
         }
 
-        private static int? GetRowByValue(IList<IList<object>> list, int column, string value)
+        private static int? GetRowByValue(IList<IList<object>> list, int column, object value)
         {
             if (list == null) return null;
 
             for (int i = 0; i < list.Count; i++)
             {
+                
                 var items = list[i];
-                if (items.Count > column && items[column]?.ToString() == value)
+                if (items.Count > column && EqualObjects(items[column], value))
                     return i;
             }
 
             return null;
         }
 
-        private static GoogleSheetAppendRequest CreateAppendRequest(string sheetName, int columnKey, string valueKey, 
+        private static GoogleSheetAppendRequest CreateAppendRequest(string sheetName, int columnKey, object valueKey, 
             int columnStart, object[] values)
         {
             var row = new GoogleSheetRow();

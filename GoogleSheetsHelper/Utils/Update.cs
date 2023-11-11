@@ -9,7 +9,7 @@
         /// <param name="sheetName">Название листа</param>
         /// <param name="startColumn">Начальный номер колонки для вставки значений</param>
         /// <param name="values">Значения (ключ (строка), массив значений)</param>
-        public static async Task Write(
+        public static async Task Update(
             GoogleSheetsClient client, 
             string sheetName, 
             IList<object[]> values, 

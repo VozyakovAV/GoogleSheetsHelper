@@ -3,7 +3,7 @@ using GoogleSheetsHelper;
 namespace UnitTests
 {
     [TestClass]
-    public class UnitTest1
+    public class TestClient
     {
         private const string JsonClient = @"C:\MyApp\Google\google_client.json";
         private const string TableId = "1_T-ENPjpjhfEiVmoSNpYZDrhfEpiwCFNeuPyNNwL2uI";

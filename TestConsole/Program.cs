@@ -144,7 +144,7 @@ namespace TestConsole
             };
 
             using var client = GetClient();
-            GoogleUtils.Write(client, "Write", items, 1, 1, 5, titles).Wait();
+            GoogleUtils.Update(client, "Write", items, 1, 1, 5, titles).Wait();
         }
 
         private static void TestWriteByKey()
@@ -157,7 +157,7 @@ namespace TestConsole
             };
             using (var client = GetClient())
             {
-                GoogleUtils.WriteByKey(client, "WriteByKey", items, 0, 1, titles).Wait();
+                GoogleUtils.UpdateByKey(client, "WriteByKey", items, 0, 1, titles).Wait();
             }
         }
 
