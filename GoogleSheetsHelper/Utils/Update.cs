@@ -40,9 +40,8 @@
                 await client.UpdateAsync(requestsAppend, ct).ConfigureAwait(false);
 
                 // удаляем лишние строки
-                var r1 = startRow + values.Count + 1;
-                var r2 = r1 + 10;
-                await client.ClearDataAsync($"{sheetName}!{r1}:{r2}", ct).ConfigureAwait(false);
+                var range = GetRangeName(sheetName, startRow + values.Count, startColumn, 10, values[0].Length);
+                await client.ClearDataAsync(range, ct).ConfigureAwait(false);
             }
         }
 

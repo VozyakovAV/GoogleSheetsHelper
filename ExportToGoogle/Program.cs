@@ -47,7 +47,7 @@ namespace ExportToGoogleConsole
             var lines = File.ReadAllLines(fileName, Encoding.GetEncoding(1251));
             foreach (var line in lines)
             {
-                var values = line.Split(';');
+                var values = line.TrimEnd(';').Split(';');
                 var objects = new List<object>();
                 foreach (var value in values)
                 {
@@ -64,7 +64,7 @@ namespace ExportToGoogleConsole
             var lines = File.ReadAllLines(fileName, Encoding.GetEncoding(1251));
             foreach (var line in lines)
             {
-                var values = line.Split(';');
+                var values = line.TrimEnd(';').Split(';');
                 var objects = new List<object>();
                 object key = "";
                 for (int i = 0; i < values.Length; i++)

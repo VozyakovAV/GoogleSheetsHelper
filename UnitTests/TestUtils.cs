@@ -35,5 +35,11 @@ namespace UnitTests
 
             GoogleUtils.AppendByKey(_client, sheetName, values).Wait();
         }
+
+        [TestMethod]
+        public void ExcelColumnName()
+        {
+            var t = GoogleUtils.GetExcelColumnName(27);
+        }
     }
 }

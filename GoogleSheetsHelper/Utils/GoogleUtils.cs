@@ -56,5 +56,29 @@
 
             return obj1.ToString() == obj2.ToString();
         }
+
+        public static string GetExcelColumnName(int columnNumber)
+        {
+            var columnName = "";
+
+            while (columnNumber > 0)
+            {
+                int modulo = (columnNumber - 1) % 26;
+                columnName = Convert.ToChar('A' + modulo) + columnName;
+                columnNumber = (columnNumber - modulo) / 26;
+            }
+
+            return columnName;
+        }
+
+        public static string GetRangeName(string sheetName, int startRow, int startColumn, int countRows, int countColumns)
+        {
+            var r1 = startRow + 1;
+            var r2 = startRow + countRows;
+            var c1 = GetExcelColumnName(startColumn + 1);
+            var c2 = GetExcelColumnName(startColumn + countColumns);
+            var res = $"{sheetName}!{c1}{r1}:{c2}{r2}";
+            return res;
+        }
     }
 }
