@@ -4,11 +4,11 @@ set pathBase="bin"
 set pathBuild="build"
 set fileDll="GoogleSheetsHelperFull.dll"
 
-rem path to MSBuild.exe
-dotnet build ExportToGoogle\ExportToGoogle.csproj -c Release -o "%pathBase%\\%pathBuild%"
-
 echo === Delete folder %pathBase% ===
-rem rmdir /S /Q %pathBase%
+rmdir /S /Q %pathBase%
+
+rem path to MSBuild.exe
+dotnet build ExportToGoogle\ExportToGoogle.csproj -o "%pathBase%\\%pathBuild%"
 
 echo === Build project ===
 rem %msbuild% %sln% /t:Rebuild /p:Configuration=Debug /p:OutputPath="..\\%pathBase%\\%pathBuild%"

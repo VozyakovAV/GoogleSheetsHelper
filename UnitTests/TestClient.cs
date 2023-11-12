@@ -128,5 +128,13 @@ namespace UnitTests
 
             var data = _client.GetDataAsync("Test").Result;
         }
+
+        [TestMethod]
+        public void ClearData()
+        {
+            var sheetName = "Test";
+            _client.AddSheetAsync(sheetName).Wait();
+            _client.ClearDataAsync($"{sheetName}!6:9").Wait();
+        }
     }
 }

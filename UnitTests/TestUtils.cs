@@ -27,7 +27,7 @@ namespace UnitTests
         public void AppendData()
         {
             var sheetName = "Test";
-            var values = new Dictionary<string, object[]>
+            var values = new Dictionary<object, object[]>
             {
                 { "1", new object[] { 1, 2, 3 } },
                 { "4", new object[] { 1, 2, 3 } },

@@ -5,17 +5,12 @@
         /// <summary>
         /// Вставить или обновить значения в гугл таблицу по ключу
         /// </summary>
-        /// <param name="client">Клиент</param>
-        /// <param name="sheetName">Название листа</param>
-        /// <param name="startColumn">Начальный номер колонки для вставки значений</param>
-        /// <param name="values">Значения (ключ (строка), массив значений)</param>
         public static async Task Update(
             GoogleSheetsClient client, 
             string sheetName, 
             IList<object[]> values, 
             int startRow = 0,
             int startColumn = 0, 
-            int addedRowEnd = 5,
             string[] titles = null,
             CancellationToken ct = default)
         {
@@ -38,14 +33,17 @@
                 requestsAppend.AddRange(CreateUpdateRequests2(sheetName, curRow++, startColumn, item));
             }
 
-            for (int i = 0; i < addedRowEnd; i++)
-            {
-                requestsAppend.AddRange(CreateUpdateRequests2(sheetName, curRow++, startColumn, emptyValues));
-            }
-
             // Отправляем данные
             if (requestsAppend.Count > 0)
+            {
+                // вставляем новые данные
                 await client.UpdateAsync(requestsAppend, ct).ConfigureAwait(false);
+
+                // удаляем лишние строки
+                var r1 = startRow + values.Count + 1;
+                var r2 = r1 + 10;
+                await client.ClearDataAsync($"{sheetName}!{r1}:{r2}", ct).ConfigureAwait(false);
+            }
         }
 
         private static IEnumerable<GoogleSheetUpdateRequest> CreateUpdateRequests2(string sheetName, int rowStart,
