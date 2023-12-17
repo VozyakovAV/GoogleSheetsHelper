@@ -6,7 +6,7 @@ namespace ExportToGoogleConsole
 {
     internal class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             Init();
             var cmd = ParseArg(args, "/cmd:");
@@ -24,16 +24,17 @@ namespace ExportToGoogleConsole
                 throw new FileNotFoundException(fileGoogle);
             
             using var client = new GoogleSheetsClient(fileGoogle, table);
+            var ct = new CancellationTokenSource(30000).Token;
 
             if (cmd.EqualsIgnoreCase("append"))
             {
                 var items = GetDictionaryValues(file);
-                GoogleUtils.AppendByKey(client, sheet, items, rowStart, columnStart).Wait();
+                await GoogleUtils.AppendByKey(client, sheet, items, rowStart, columnStart, ct: ct);
             }
             else if (cmd.EqualsIgnoreCase("update"))
             {
                 var items = GetListValues(file);
-                GoogleUtils.Update(client, sheet, items, rowStart, columnStart).Wait();
+                await GoogleUtils.Update(client, sheet, items, rowStart, columnStart, ct: ct);
             }
             else
             {
