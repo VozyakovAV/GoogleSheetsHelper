@@ -29,12 +29,12 @@ namespace ExportToGoogleConsole
             if (cmd.EqualsIgnoreCase("append"))
             {
                 var items = GetDictionaryValues(file);
-                await GoogleUtils.AppendByKey(client, sheet, items, rowStart, columnStart, ct: ct);
+                await GoogleUtils.AppendByKey(client, sheet, items, rowStart, columnStart, ct: ct).ConfigureAwait(false);
             }
             else if (cmd.EqualsIgnoreCase("update"))
             {
                 var items = GetListValues(file);
-                await GoogleUtils.Update(client, sheet, items, rowStart, columnStart, ct: ct);
+                await GoogleUtils.Update(client, sheet, items, rowStart, columnStart, ct: ct).ConfigureAwait(false);
             }
             else
             {
